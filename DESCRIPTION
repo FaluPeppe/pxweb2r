@@ -1,0 +1,33 @@
+Package: pxweb2r
+Title: Hämta Data Från PxWeb API v2
+Version: 0.0.0.9000
+Authors@R:
+    person("Peter", "Möller", , "larspetermoller@gmail.com", role = c("aut", "cre"))
+Description: Verktyg för att hämta data och metadata från ett PxWeb API v2,
+    som standard SCB:s statistikdatabas. Hanterar automatisk chunkning av
+    stora uttag, klartextvärden i queries, wildcards, "senaste tid",
+    aggregeringar samt uppdelning av DeSO och RegSO på kommun. Resultatet
+    returneras som tidy tibbles.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Depends:
+    R (>= 4.1)
+Imports:
+    dplyr,
+    httr,
+    jsonlite,
+    purrr,
+    rjstat,
+    rlang,
+    stats,
+    stringr,
+    tibble,
+    tidyr,
+    utils
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+URL: https://github.com/FaluPeppe/pxweb2r
+BugReports: https://github.com/FaluPeppe/pxweb2r/issues
+Config/roxygen2/version: 8.1.0
