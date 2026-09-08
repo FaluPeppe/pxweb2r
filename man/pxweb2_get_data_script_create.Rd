@@ -20,8 +20,9 @@ pxweb2_get_data_script_create(
 
 \item{overrides}{Namngiven lista med värden per variabel.}
 
-\item{to_clipboard}{Om \code{TRUE} kopieras texten till urklipp (kräver
-urklippsstöd i R-sessionen).}
+\item{to_clipboard}{Om \code{TRUE} kopieras texten till urklipp. Kräver paketet
+\code{clipr} och ett tillgängligt urklipp (på Linux \code{xclip}, \code{xsel} eller
+\code{wl-clipboard} samt en aktiv display). Saknas det skrivs texten bara ut.}
 
 \item{base_url}{Bas-URL till PxWeb API v2.}
 }

@@ -12,3 +12,6 @@
   argument på `pxweb2_tabell_uppdaterades()`,
   `pxweb2_tabell_behover_uppdateras()`, `pxweb2_query_list_txt_create()` och
   `pxweb2_get_data_script_create()`.
+* `pxweb2_get_data_script_create(to_clipboard = TRUE)` använder nu `clipr`
+  (Suggests) i stället för `writeLines(con = "clipboard")` och faller tillbaka
+  på enbart utskrift när urklipp saknas, t.ex. på headless Linux.

@@ -2457,8 +2457,9 @@ pxweb2_query_list_txt_create <- function(table_id,
 #' @param default_value Värde som används för variabler utan override, normalt
 #'   `"*"`.
 #' @param overrides Namngiven lista med värden per variabel.
-#' @param to_clipboard Om `TRUE` kopieras texten till urklipp (kräver
-#'   urklippsstöd i R-sessionen).
+#' @param to_clipboard Om `TRUE` kopieras texten till urklipp. Kräver paketet
+#'   `clipr` och ett tillgängligt urklipp (på Linux `xclip`, `xsel` eller
+#'   `wl-clipboard` samt en aktiv display). Saknas det skrivs texten bara ut.
 #' @param base_url Bas-URL till PxWeb API v2.
 #'
 #' @return Anropas för sidoeffekten (`cat()`). Returnerar `NULL` osynligt.
@@ -2504,9 +2505,13 @@ pxweb2_get_data_script_create <- function(table_id,
   )
   
   if (to_clipboard) {
-    writeLines(text = retur_txt, con = "clipboard", sep = "")
+    if (requireNamespace("clipr", quietly = TRUE) && clipr::clipr_available()) {
+      clipr::write_clip(retur_txt)
+    } else {
+      message("Urklipp inte tillgängligt – texten skrivs bara ut.")
+    }
   }
-  
+
   cat(retur_txt)
 }
 
