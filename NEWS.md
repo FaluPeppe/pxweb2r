@@ -2,6 +2,11 @@
 
 * First version as a package, extracted from `func_pxweb2.R` in
   `Region-Dalarna/funktioner`.
+* New: `pxweb2_get_codelist()` fetches a single code list (value set or
+  aggregation) by its global id, without needing a table -
+  e.g. `pxweb2_get_codelist("vs_RegionKommun07")` for all municipalities.
+* New: `pxweb2_list_codelists()` reads a table's metadata and lists every
+  code list its variables offer (id, type, label).
 * All function and parameter names are English. Enum values follow: the
   `deso_regso_versions` argument takes `"latest"` / `"sum"` (was
   `"senaste"` / `"summering"`). User-facing messages and code comments are

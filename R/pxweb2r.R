@@ -1958,6 +1958,115 @@ pxweb2_table_exists <- function(
   TRUE
 }
 
+# derive the API root ("https://.../api/v2/") from a tables base_url
+intern_pxweb2_api_root <- function(base_url) {
+  sub("tables/?$", "", base_url)
+}
+
+#' Get a single code list
+#'
+#' Fetches one code list (value set or aggregation) by id from the PxWeb API v2.
+#' Code-list ids are global and do not require a table - e.g.
+#' `"vs_RegionKommun07"` (municipalities), `"vs_RegionLän07"` (counties) or
+#' `"agg_RegionLA2018"` (local labour-market areas). Use
+#' [pxweb2_list_codelists()] to discover which ids a given table offers.
+#'
+#' @param codelist_id Code-list id, e.g. `"vs_RegionKommun07"`.
+#' @param lang Language for labels, `"sv"` or `"en"`.
+#' @param base_url Base URL of the PxWeb API v2 (the tables endpoint); the code
+#'   lists endpoint is derived from it.
+#'
+#' @return A `tibble` with one row per value: `code`, `label`, and `value_map`
+#'   (a list column - the member codes, which for a value set is just the code
+#'   itself and for an aggregation is the set of aggregated codes).
+#' @export
+pxweb2_get_codelist <- function(
+    codelist_id,
+    lang = "sv",
+    base_url = "https://statistikdatabasen.scb.se/api/v2/tables/"
+) {
+  if (is.null(codelist_id) || length(codelist_id) != 1 || !is.character(codelist_id) ||
+      is.na(codelist_id) || !nzchar(trimws(codelist_id))) {
+    stop("codelist_id must be a non-empty string of length 1.", call. = FALSE)
+  }
+
+  cl_url <- paste0(intern_pxweb2_api_root(base_url), "codelists/", codelist_id)
+  resp <- intern_pxweb2_GET(cl_url, httr::accept_json(), query = list(lang = lang))
+
+  if (httr::http_error(resp)) {
+    stop(
+      "Could not fetch code list '", codelist_id, "' from ",
+      intern_pxweb2_api_root(base_url), "codelists/ (HTTP ",
+      httr::status_code(resp), "). Check the code-list id.",
+      call. = FALSE
+    )
+  }
+
+  cl <- httr::content(resp, as = "parsed", encoding = "UTF-8")
+  values <- purrr::pluck(cl, "values", .default = list())
+
+  if (length(values) == 0) {
+    return(tibble::tibble(
+      code = character(), label = character(), value_map = list()
+    ))
+  }
+
+  tibble::tibble(
+    code = trimws(purrr::map_chr(values, ~ .x$code %||% NA_character_)),
+    label = trimws(purrr::map_chr(values, ~ .x$label %||% NA_character_)),
+    value_map = purrr::map(values, ~ as.character(.x$valueMap %||% .x$code))
+  )
+}
+
+#' List the code lists available for a table
+#'
+#' Reads a table's metadata and returns every code list (value sets and
+#' aggregations) offered by its variables. There is no global code-list
+#' listing in the API - they are only discoverable per table.
+#'
+#' @param table Table id or a metadata object from [pxweb2_get_metadata()].
+#' @param base_url Base URL of the PxWeb API v2.
+#'
+#' @return A `tibble` with one row per code list: `variable` (the variable it
+#'   belongs to), `id`, `type` (`"Valueset"` or `"Aggregation"`) and `label`.
+#'   Fetch a specific one with [pxweb2_get_codelist()].
+#' @export
+pxweb2_list_codelists <- function(
+    table,
+    base_url = "https://statistikdatabasen.scb.se/api/v2/tables/"
+) {
+  if (is.null(table)) stop("table must be supplied, either as a table id or a metadata object.")
+  if (!is.list(table)) {
+    intern_pxweb2_check_table_id(table)
+    metadata <- pxweb2_get_metadata(table, base_url = base_url)
+  } else metadata <- table
+
+  empty <- tibble::tibble(
+    variable = character(), id = character(),
+    type = character(), label = character()
+  )
+
+  rows <- purrr::imap(metadata$dimension, function(dim_el, dim_name) {
+    cl <- purrr::pluck(dim_el, "extension", "codelists", .default = NULL)
+    if (is.null(cl) || length(cl) == 0) return(empty)
+    purrr::map_dfr(cl, function(item) {
+      lbl <- purrr::pluck(item, "label", .default = NA_character_)
+      if (is.list(lbl)) {
+        lbl <- purrr::pluck(lbl, "sv",
+                            .default = (unlist(lbl, use.names = FALSE)[1] %||% NA_character_))
+      }
+      tibble::tibble(
+        variable = dim_name,
+        id       = purrr::pluck(item, "id",   .default = NA_character_),
+        type     = purrr::pluck(item, "type", .default = NA_character_),
+        label    = lbl %||% NA_character_
+      )
+    })
+  })
+
+  dplyr::bind_rows(rows)
+}
+
 intern_pxweb2_is_pxweb_query_list <- function(x) {
   is.list(x) &&
     !is.null(x$selection) &&
