@@ -1,17 +1,35 @@
 # pxweb2r 0.0.0.9000
 
-* Första versionen som paket, utbruten ur `func_pxweb2.R` i
+* First version as a package, extracted from `func_pxweb2.R` in
   `Region-Dalarna/funktioner`.
-* Tabell-id valideras inte längre mot mönstret `^TAB\d+$`. En lokal
-  minimalkontroll (icke-tom sträng, längd 1, inga blanksteg eller `/`) görs i
-  stället, och `pxweb2_meta()` avgör om tabellen faktiskt finns – HTTP 404
-  översätts till ett begripligt felmeddelande.
-* Nytt: `pxweb2_tabell_finns()` för att snabbt kontrollera om ett tabell-id
-  finns på en given `base_url`.
-* `base_url` skickas nu hela vägen till metadata-anropen, och finns som
-  argument på `pxweb2_tabell_uppdaterades()`,
-  `pxweb2_tabell_behover_uppdateras()`, `pxweb2_query_list_txt_create()` och
-  `pxweb2_get_data_script_create()`.
-* `pxweb2_get_data_script_create(to_clipboard = TRUE)` använder nu `clipr`
-  (Suggests) i stället för `writeLines(con = "clipboard")` och faller tillbaka
-  på enbart utskrift när urklipp saknas, t.ex. på headless Linux.
+* All function and parameter names are English. Enum values follow: the
+  `deso_regso_versions` argument takes `"latest"` / `"sum"` (was
+  `"senaste"` / `"summering"`). User-facing messages and code comments are
+  English too.
+* Table ids are no longer validated against the pattern `^TAB\d+$`. A minimal
+  local check is done instead (non-empty string, length 1, no whitespace or
+  `/`), and `pxweb2_get_metadata()` decides whether the table actually exists -
+  HTTP 404 is translated into a clear error message.
+* New: `pxweb2_table_exists()` to quickly check whether a table id exists on a
+  given `base_url`.
+* `base_url` is now passed all the way to the metadata calls, and is an
+  argument on `pxweb2_table_updated()`, `pxweb2_table_needs_update()`,
+  `pxweb2_query_list_template()` and `pxweb2_data_script_template()`.
+* `pxweb2_data_script_template(to_clipboard = TRUE)` uses `clipr` (Suggests)
+  instead of `writeLines(con = "clipboard")` and falls back to printing only
+  when no clipboard is available, e.g. on headless Linux.
+
+## Name mapping from func_pxweb2.R
+
+| func_pxweb2.R | pxweb2r |
+|---|---|
+| `pxweb2_hamta_data()` | `pxweb2_get_data()` |
+| `pxweb2_meta()` | `pxweb2_get_metadata()` |
+| `pxweb2_variabler()` | `pxweb2_get_variables()` |
+| `pxweb2_varden()` | `pxweb2_get_values()` |
+| `pxweb2_tabell_uppdaterades()` | `pxweb2_table_updated()` |
+| `pxweb2_tabell_behover_uppdateras()` | `pxweb2_table_needs_update()` |
+| `pxweb2_tabell_finns()` | `pxweb2_table_exists()` |
+| `pxweb2_search_tables()` | `pxweb2_search_tables()` |
+| `pxweb2_query_list_txt_create()` | `pxweb2_query_list_template()` |
+| `pxweb2_get_data_script_create()` | `pxweb2_data_script_template()` |

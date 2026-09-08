@@ -1,13 +1,13 @@
 Package: pxweb2r
-Title: Hämta Data Från PxWeb API v2
+Title: Get Data From a PxWeb API v2
 Version: 0.0.0.9000
 Authors@R:
     person("Peter", "Möller", , "larspetermoller@gmail.com", role = c("aut", "cre"))
-Description: Verktyg för att hämta data och metadata från ett PxWeb API v2,
-    som standard SCB:s statistikdatabas. Hanterar automatisk chunkning av
-    stora uttag, klartextvärden i queries, wildcards, "senaste tid",
-    aggregeringar samt uppdelning av DeSO och RegSO på kommun. Resultatet
-    returneras som tidy tibbles.
+Description: Tools for fetching data and metadata from a PxWeb API v2, by
+    default Statistics Sweden's statistical database. Handles automatic
+    chunking of large requests, label values in queries, wildcards,
+    "latest period", aggregations, and splitting DeSO and RegSO by
+    municipality. Results are returned as tidy tibbles.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

@@ -3,11 +3,11 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-`pxweb2r` hämtar data och metadata från ett **PxWeb API v2** – som standard
-[SCB:s statistikdatabas](https://www.statistikdatabasen.scb.se/) – och
-returnerar tidy `tibble`-tabeller.
+`pxweb2r` fetches data and metadata from a **PxWeb API v2** - by default
+[Statistics Sweden's statistical database](https://www.statistikdatabasen.scb.se/) -
+and returns tidy `tibble` tables.
 
-Paketet är utbrutet ur funktionsfilen `func_pxweb2.R` i
+The package is extracted from the function file `func_pxweb2.R` in
 [`Region-Dalarna/funktioner`](https://github.com/Region-Dalarna/funktioner).
 
 ## Installation
@@ -17,40 +17,40 @@ Paketet är utbrutet ur funktionsfilen `func_pxweb2.R` i
 remotes::install_github("FaluPeppe/pxweb2r")
 ```
 
-## Kom igång
+## Getting started
 
 ```r
 library(pxweb2r)
 
-# Hämta data
-befolkning <- pxweb2_hamta_data(
-  tabell = "TAB6104",
+# Fetch data
+population <- pxweb2_get_data(
+  table = "TAB6104",
   query = list(
-    Region = c("Dalarnas län"),
-    Kon    = "*",
+    Region       = c("Dalarnas lan"),
+    Kon          = "*",
     ContentsCode = "*",
-    Tid    = "9999"          # senaste tidsperiod
+    Tid          = "9999"          # latest period
   )
 )
 
-# Metadata och variabler
-meta <- pxweb2_meta("TAB6104")
-pxweb2_variabler(meta)
-pxweb2_varden(meta)
+# Metadata and variables
+meta <- pxweb2_get_metadata("TAB6104")
+pxweb2_get_variables(meta)
+pxweb2_get_values(meta)
 
-# Sök tabeller
+# Search tables
 pxweb2_search_tables("befolkning")
 
-# Finns tabellen?
-pxweb2_tabell_finns("TAB6104")
+# Does the table exist?
+pxweb2_table_exists("TAB6104")
 ```
 
-## Andra PxWeb-instanser
+## Other PxWeb instances
 
-Alla funktioner tar ett `base_url`-argument. Tabell-id valideras inte mot
-SCB:s namngivning – om ett id inte finns på den angivna `base_url` ger
-`pxweb2_meta()` ett tydligt fel (HTTP 404).
+Every function takes a `base_url` argument. Table ids are not validated against
+Statistics Sweden's naming - if an id does not exist on the given `base_url`,
+`pxweb2_get_metadata()` raises a clear error (HTTP 404).
 
-## Licens
+## Licence
 
-MIT © Peter Möller
+MIT (c) Peter Möller

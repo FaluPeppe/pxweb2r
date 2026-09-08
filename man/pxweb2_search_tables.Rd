@@ -2,7 +2,7 @@
 % Please edit documentation in R/pxweb2r.R
 \name{pxweb2_search_tables}
 \alias{pxweb2_search_tables}
-\title{Sök bland tabeller i ett PxWeb API v2}
+\title{Search among tables in a PxWeb API v2}
 \usage{
 pxweb2_search_tables(
   query = NULL,
@@ -16,25 +16,25 @@ pxweb2_search_tables(
 )
 }
 \arguments{
-\item{query}{Fritextsökning. \code{NULL} listar alla tabeller.}
+\item{query}{Free-text search. \code{NULL} lists all tables.}
 
-\item{base_url}{Bas-URL till PxWeb API v2 (tables-endpointen).}
+\item{base_url}{Base URL of the PxWeb API v2 (the tables endpoint).}
 
-\item{lang}{Språk, \code{"sv"} eller \code{"en"}.}
+\item{lang}{Language, \code{"sv"} or \code{"en"}.}
 
-\item{pastDays}{Begränsa till tabeller uppdaterade de senaste N dagarna.}
+\item{pastDays}{Restrict to tables updated in the last N days.}
 
-\item{includeDiscontinued}{Om nedlagda tabeller ska tas med.}
+\item{includeDiscontinued}{Whether discontinued tables should be included.}
 
-\item{pageSize}{Antal träffar per sida.}
+\item{pageSize}{Number of matches per page.}
 
-\item{timeout_sec}{Timeout per anrop i sekunder.}
+\item{timeout_sec}{Timeout per call in seconds.}
 
-\item{max_pages}{Max antal sidor att hämta.}
+\item{max_pages}{Max number of pages to fetch.}
 }
 \value{
-En \code{tibble} med en rad per tabell.
+A \code{tibble} with one row per table.
 }
 \description{
-Frågar tables-endpointen och sidbläddrar igenom alla träffar.
+Queries the tables endpoint and pages through all matches.
 }

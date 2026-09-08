@@ -4,9 +4,9 @@
 \name{pxweb2r-package}
 \alias{pxweb2r}
 \alias{pxweb2r-package}
-\title{pxweb2r: Hämta Data Från PxWeb API v2}
+\title{pxweb2r: Get Data From a PxWeb API v2}
 \description{
-Verktyg för att hämta data och metadata från ett PxWeb API v2, som standard SCB:s statistikdatabas. Hanterar automatisk chunkning av stora uttag, klartextvärden i queries, wildcards, "senaste tid", aggregeringar samt uppdelning av DeSO och RegSO på kommun. Resultatet returneras som tidy tibbles.
+Tools for fetching data and metadata from a PxWeb API v2, by default Statistics Sweden's statistical database. Handles automatic chunking of large requests, label values in queries, wildcards, "latest period", aggregations, and splitting DeSO and RegSO by municipality. Results are returned as tidy tibbles.
 }
 \seealso{
 Useful links:
