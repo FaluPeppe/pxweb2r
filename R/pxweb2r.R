@@ -10,7 +10,7 @@
 # or '/' - i.e. catches a passed vector, NULL, NA or a whole URL.
 # No naming-convention check ("TAB..."); whether the id actually exists is
 # decided by the API via pxweb2_get_metadata() (404 => not on the base_url used).
-intern_pxweb2_check_table_id <- function(table_id) {
+.pxweb2_check_table_id <- function(table_id) {
   if (is.null(table_id) || length(table_id) != 1 || !is.character(table_id) ||
       is.na(table_id) || !nzchar(trimws(table_id))) {
     stop("table id must be a non-empty string of length 1.", call. = FALSE)
@@ -87,7 +87,7 @@ pxweb2_get_data <- function(
   # check whether more than one table was requested
   if (!is.list(table) && length(table) > 1) {
     return(
-      intern_pxweb2_get_multiple_tables(
+      .pxweb2_get_multiple_tables(
         tables = table,
         query = query,
         lang = lang,
@@ -114,7 +114,7 @@ pxweb2_get_data <- function(
   }
   
   if (!is.list(table)) {
-    intern_pxweb2_check_table_id(table)
+    .pxweb2_check_table_id(table)
     metadata <- pxweb2_get_metadata(table, base_url = base_url)
   } else {
     metadata <- table
@@ -128,12 +128,12 @@ pxweb2_get_data <- function(
   
   # build a query list from the supplied query, or one covering all valid values
   query_list <- if (is.null(query)) {
-    intern_pxweb2_create_variable_query_list(variables_df)
+    .pxweb2_create_variable_query_list(variables_df)
   } else {
-    if (intern_pxweb2_is_pxweb_query_list(query)) {
+    if (.pxweb2_is_pxweb_query_list(query)) {
       query
     } else {
-      intern_pxweb2_list_to_query_list(
+      .pxweb2_list_to_query_list(
         variables_df,
         query,
         valid_values_list = valid_values_list,
@@ -143,16 +143,16 @@ pxweb2_get_data <- function(
   }
   
   query_list <- query_list |>
-    intern_pxweb2_resolve_latest_period(
+    .pxweb2_resolve_latest_period(
       variables_df = variables_df,
       valid_values_list = valid_values_list,
       latest_period_code = latest_period_code
     ) |>
-    intern_pxweb2_resolve_api_wildcards(
+    .pxweb2_resolve_api_wildcards(
       valid_values_list = valid_values_list,
       allow_api_wildcards = allow_api_wildcards
     ) |>
-    intern_pxweb2_sanitize_query_values(
+    .pxweb2_sanitize_query_values(
       valid_values_list = valid_values_list,
       on_all_values_invalid = on_all_values_invalid
     )
@@ -166,7 +166,7 @@ pxweb2_get_data <- function(
     return(NULL)
   }
 
-  request_list <- intern_pxweb2_expand_requests_generic(query_list, valid_values_list)
+  request_list <- .pxweb2_expand_requests_generic(query_list, valid_values_list)
 
 
   # drop requests that lack a selection or are NULL
@@ -174,7 +174,7 @@ pxweb2_get_data <- function(
   if (length(request_list) == 0) return(NULL)
 
   # split into chunks if the request has more than 150,000 cells
-  query_chunks <- intern_pxweb2_make_request_chunks(
+  query_chunks <- .pxweb2_make_request_chunks(
     variables_df,
     request_list,
     valid_values_list = valid_values_list
@@ -210,13 +210,13 @@ pxweb2_get_data <- function(
       }) |>
         purrr::flatten()
       
-      data_resp <- intern_pxweb2_GET(
+      data_resp <- .pxweb2_GET(
         data_url,
         query = c(list(lang = lang, outputFormat = output_format), vc_query, req$extra_query),
         httr::accept_json()
       )
     } else {
-      data_resp <- intern_pxweb2_POST(
+      data_resp <- .pxweb2_POST(
         data_url,
         body = jsonlite::toJSON(req$body, auto_unbox = TRUE),
         query = list(lang = lang, outputFormat = output_format),
@@ -256,7 +256,7 @@ pxweb2_get_data <- function(
         }
 
 
-        acc[[text_col]] <- intern_pxweb2_strip_code_in_label(
+        acc[[text_col]] <- .pxweb2_strip_code_in_label(
           label = acc[[text_col]],
           code = acc[[code_col]]
         )
@@ -273,7 +273,7 @@ pxweb2_get_data <- function(
     purrr::list_rbind()
 
   # handle DeSO/RegSO versions here if requested (value "latest" or "sum", not NULL)
-  result_table <- intern_pxweb2_handle_deso_regso_versions(
+  result_table <- .pxweb2_handle_deso_regso_versions(
     result_table,
     mode = deso_regso_versions,
     value_col = "value"
@@ -282,9 +282,9 @@ pxweb2_get_data <- function(
   # optionally split municipality code and municipality into their own columns and
   # keep only the RegSO name (and DeSO code as name) in the region column
   if (isTRUE(split_deso_regso_by_municipality)) {
-    result_table <- intern_pxweb2_split_deso_regso_municipality(result_table)
+    result_table <- .pxweb2_split_deso_regso_municipality(result_table)
 
-    result_table <- intern_pxweb2_fill_deso_municipality_from_metadata(
+    result_table <- .pxweb2_fill_deso_municipality_from_metadata(
       df = result_table,
       metadata = metadata
     )
@@ -335,7 +335,7 @@ pxweb2_table_needs_update <- function(
     base_url = "https://statistikdatabasen.scb.se/api/v2/tables/"
 ) {
 
-  intern_pxweb2_check_table_id(table)
+  .pxweb2_check_table_id(table)
 
   if (is.null(reference_datetime) || length(reference_datetime) != 1) {
     stop("reference_datetime must be a text value of length 1.", call. = FALSE)
@@ -370,7 +370,7 @@ pxweb2_table_needs_update <- function(
 
 # split municipality code and municipality name into their own columns, and reduce
 # the region column to just the RegSO/DeSO name (the DeSO name equals its code)
-intern_pxweb2_split_deso_regso_municipality <- function(df,
+.pxweb2_split_deso_regso_municipality <- function(df,
                                                     region_col = "region",
                                                     region_code_col = "region_kod") {
   
@@ -472,7 +472,7 @@ intern_pxweb2_split_deso_regso_municipality <- function(df,
 }
 
 # handle several different versions of DeSO or RegSO in the same table
-intern_pxweb2_handle_deso_regso_versions <- function(df,
+.pxweb2_handle_deso_regso_versions <- function(df,
                                                        mode = c("latest", "sum"),
                                                        region_col = "region",
                                                        region_code_col = "region_kod",
@@ -616,7 +616,7 @@ intern_pxweb2_handle_deso_regso_versions <- function(df,
 }
 
 
-intern_pxweb2_find_municipality_valueset_url <- function(metadata,
+.pxweb2_find_municipality_valueset_url <- function(metadata,
                                                     region_var = "Region") {
   
   region_dim <- metadata$dimension[[region_var]]
@@ -657,10 +657,10 @@ intern_pxweb2_find_municipality_valueset_url <- function(metadata,
 }
 
 
-intern_pxweb2_municipality_key_from_metadata <- function(metadata,
+.pxweb2_municipality_key_from_metadata <- function(metadata,
                                                            region_var = "Region") {
   
-  url <- intern_pxweb2_find_municipality_valueset_url(
+  url <- .pxweb2_find_municipality_valueset_url(
     metadata = metadata,
     region_var = region_var
   )
@@ -669,7 +669,7 @@ intern_pxweb2_municipality_key_from_metadata <- function(metadata,
     return(NULL)
   }
   
-  resp <- intern_pxweb2_GET(url, httr::accept_json())
+  resp <- .pxweb2_GET(url, httr::accept_json())
   httr::stop_for_status(resp)
   
   cl <- jsonlite::fromJSON(
@@ -691,7 +691,7 @@ intern_pxweb2_municipality_key_from_metadata <- function(metadata,
   }) |>
     dplyr::filter(!is.na(municipality_code), !is.na(municipality)) |>
     dplyr::mutate(
-      municipality = intern_pxweb2_strip_code_prefix_in_label(
+      municipality = .pxweb2_strip_code_prefix_in_label(
         label = municipality,
         code = municipality_code
       )
@@ -700,7 +700,7 @@ intern_pxweb2_municipality_key_from_metadata <- function(metadata,
   return(municipality_key)
 }
 
-intern_pxweb2_fill_deso_municipality_from_metadata <- function(df,
+.pxweb2_fill_deso_municipality_from_metadata <- function(df,
                                                          metadata,
                                                          region_code_col = "region_kod",
                                                          municipality_code_col = "kommun_kod",
@@ -724,7 +724,7 @@ intern_pxweb2_fill_deso_municipality_from_metadata <- function(df,
     return(df)
   }
 
-  municipality_key <- intern_pxweb2_municipality_key_from_metadata(metadata)
+  municipality_key <- .pxweb2_municipality_key_from_metadata(metadata)
 
   if (is.null(municipality_key) || nrow(municipality_key) == 0) {
     return(df)
@@ -745,7 +745,7 @@ intern_pxweb2_fill_deso_municipality_from_metadata <- function(df,
 }
 
 
-intern_pxweb2_strip_code_prefix_in_label <- function(label, code) {
+.pxweb2_strip_code_prefix_in_label <- function(label, code) {
 
   label_chr <- as.character(label)
   code_chr <- as.character(code)
@@ -772,13 +772,13 @@ intern_pxweb2_strip_code_prefix_in_label <- function(label, code) {
 
 
 # helper: check whether the query contains "9999"
-intern_pxweb2_query_has_latest_period <- function(query, latest_period_code = "9999") {
+.pxweb2_query_has_latest_period <- function(query, latest_period_code = "9999") {
   
   if (is.null(query) || is.null(latest_period_code)) {
     return(FALSE)
   }
   
-  if (intern_pxweb2_is_pxweb_query_list(query)) {
+  if (.pxweb2_is_pxweb_query_list(query)) {
     return(
       any(
         purrr::map_lgl(query$selection, function(x) {
@@ -796,13 +796,13 @@ intern_pxweb2_query_has_latest_period <- function(query, latest_period_code = "9
 }
 
 # helper: replace "9999" with the chosen common period
-intern_pxweb2_replace_latest_period_in_query <- function(query, latest_period_code, latest_period) {
+.pxweb2_replace_latest_period_in_query <- function(query, latest_period_code, latest_period) {
   
   if (is.null(query) || is.null(latest_period_code)) {
     return(query)
   }
   
-  if (intern_pxweb2_is_pxweb_query_list(query)) {
+  if (.pxweb2_is_pxweb_query_list(query)) {
     
     query$selection <- purrr::map(query$selection, function(x) {
       
@@ -827,7 +827,7 @@ intern_pxweb2_replace_latest_period_in_query <- function(query, latest_period_co
 
 # helper: find the time variable
 # relies on pxweb2_get_variables() returning something with code, label, role.
-intern_pxweb2_find_time_variable <- function(variables_df) {
+.pxweb2_find_time_variable <- function(variables_df) {
 
   candidate <- variables_df |>
     dplyr::mutate(
@@ -857,12 +857,12 @@ intern_pxweb2_find_time_variable <- function(variables_df) {
 }
 
 # helper: fetch values for the time variable
-intern_pxweb2_get_time_values <- function(metadata) {
+.pxweb2_get_time_values <- function(metadata) {
 
   variables_df <- pxweb2_get_variables(metadata)
   valid_values_list <- pxweb2_get_values(metadata)
 
-  time_var <- intern_pxweb2_find_time_variable(variables_df)
+  time_var <- .pxweb2_find_time_variable(variables_df)
 
   if (!time_var %in% names(valid_values_list)) {
     stop(
@@ -909,10 +909,10 @@ intern_pxweb2_get_time_values <- function(metadata) {
 
 
 # find the latest period when several tables are passed
-intern_pxweb2_latest_common_period <- function(metadata_list) {
+.pxweb2_latest_common_period <- function(metadata_list) {
 
   periods_list <- metadata_list |>
-    purrr::map(intern_pxweb2_get_time_values)
+    purrr::map(.pxweb2_get_time_values)
 
   common_periods <- Reduce(intersect, periods_list)
 
@@ -928,10 +928,10 @@ intern_pxweb2_latest_common_period <- function(metadata_list) {
     (\(x) x[[1]])()
 }
 
-intern_pxweb2_latest_period_all_tables <- function(metadata_list) {
+.pxweb2_latest_period_all_tables <- function(metadata_list) {
 
   periods_list <- metadata_list |>
-    purrr::map(intern_pxweb2_get_time_values)
+    purrr::map(.pxweb2_get_time_values)
 
   all_periods <- Reduce(union, periods_list)
 
@@ -949,7 +949,7 @@ intern_pxweb2_latest_period_all_tables <- function(metadata_list) {
 
 
 # helper: warn about differing structure
-intern_pxweb2_warn_if_different_structure <- function(result_list) {
+.pxweb2_warn_if_different_structure <- function(result_list) {
 
   columns_list <- result_list |>
     purrr::map(names)
@@ -987,7 +987,7 @@ intern_pxweb2_warn_if_different_structure <- function(result_list) {
 }
 
 # main function for several tables
-intern_pxweb2_get_multiple_tables <- function(
+.pxweb2_get_multiple_tables <- function(
     tables,
     query = NULL,
     lang = "sv",
@@ -1008,7 +1008,7 @@ intern_pxweb2_get_multiple_tables <- function(
   if (!is.character(tables) || length(tables) < 1) {
     stop("tables must be a character vector with at least one table id.", call. = FALSE)
   }
-  purrr::walk(tables, intern_pxweb2_check_table_id)
+  purrr::walk(tables, .pxweb2_check_table_id)
 
   metadata_list <- tables |>
     purrr::map(\(t) pxweb2_get_metadata(t, base_url = base_url))
@@ -1017,13 +1017,13 @@ intern_pxweb2_get_multiple_tables <- function(
 
   # resolve "auto" once, based on the total number of code lists across ALL tables
   if (identical(include_aggregations, "auto")) {
-    intern_cl_count <- function(meta) {
+    .cl_count <- function(meta) {
       purrr::map_int(meta$dimension, function(dim_el) {
         cl <- purrr::pluck(dim_el, "extension", "codelists", .default = NULL)
         if (is.null(cl)) 0L else sum(purrr::map_lgl(cl, ~ tolower(purrr::pluck(.x, "type", .default = "")) == "aggregation"))
       }) |> sum()
     }
-    total <- purrr::map_int(metadata_list, intern_cl_count) |> sum()
+    total <- purrr::map_int(metadata_list, .cl_count) |> sum()
     include_aggregations <- if (total <= auto_limit) {
       message(
         "include_aggregations = \"auto\": found ", total, " code lists in total (",
@@ -1040,7 +1040,7 @@ intern_pxweb2_get_multiple_tables <- function(
     }
   }
 
-  has_latest_period <- intern_pxweb2_query_has_latest_period(
+  has_latest_period <- .pxweb2_query_has_latest_period(
     query = query,
     latest_period_code = latest_period_code
   )
@@ -1051,14 +1051,14 @@ intern_pxweb2_get_multiple_tables <- function(
   if (isTRUE(has_latest_period)) {
 
     periods_list <- metadata_list |>
-      purrr::map(intern_pxweb2_get_time_values)
+      purrr::map(.pxweb2_get_time_values)
 
     latest_period <- periods_list |>
       Reduce(f = union) |>
       sort(decreasing = TRUE) |>
       (\(x) x[[1]])()
 
-    query_adjusted <- intern_pxweb2_replace_latest_period_in_query(
+    query_adjusted <- .pxweb2_replace_latest_period_in_query(
       query = query,
       latest_period_code = latest_period_code,
       latest_period = latest_period
@@ -1100,7 +1100,7 @@ intern_pxweb2_get_multiple_tables <- function(
       variables_df_table <- pxweb2_get_variables(metadata_table)
 
       query_table <- query_adjusted |>
-        intern_pxweb2_harmonise_query_names(
+        .pxweb2_harmonise_query_names(
           variables_df = variables_df_table,
           harmonise_variable_names = harmonise_variable_names
         )
@@ -1126,7 +1126,7 @@ intern_pxweb2_get_multiple_tables <- function(
       if (is.null(df_table)) return(NULL)
 
       df_table |>
-        intern_pxweb2_harmonise_result_names(
+        .pxweb2_harmonise_result_names(
           harmonise_variable_names = harmonise_variable_names
         ) |>
         dplyr::mutate(
@@ -1145,15 +1145,15 @@ intern_pxweb2_get_multiple_tables <- function(
     return(NULL)
   }
   
-  intern_pxweb2_warn_if_different_structure(result_list)
+  .pxweb2_warn_if_different_structure(result_list)
   
   dplyr::bind_rows(result_list)
-} # end function intern_pxweb2_get_multiple_tables
+} # end function .pxweb2_get_multiple_tables
 
 
 # helper: harmonise query names
 # lets the user write Region = ... even if a given table actually has the variable Kommun.
-intern_pxweb2_harmonise_query_names <- function(
+.pxweb2_harmonise_query_names <- function(
     query,
     variables_df,
     harmonise_variable_names = NULL
@@ -1163,7 +1163,7 @@ intern_pxweb2_harmonise_query_names <- function(
     return(query)
   }
 
-  if (intern_pxweb2_is_pxweb_query_list(query)) {
+  if (.pxweb2_is_pxweb_query_list(query)) {
     return(query)
   }
 
@@ -1201,10 +1201,10 @@ intern_pxweb2_harmonise_query_names <- function(
   }
 
   query
-} # end function intern_pxweb2_harmonise_query_names
+} # end function .pxweb2_harmonise_query_names
 
 
-intern_pxweb2_strip_code_in_label <- function(label, code) {
+.pxweb2_strip_code_in_label <- function(label, code) {
   label_chr <- as.character(label)
   code_chr <- as.character(code)
 
@@ -1238,7 +1238,7 @@ intern_pxweb2_strip_code_in_label <- function(label, code) {
 
 # helper: harmonise result names
 # renames result columns after fetching, e.g. Kommun -> Region and kommun_kod -> region_kod
-intern_pxweb2_harmonise_result_names <- function(
+.pxweb2_harmonise_result_names <- function(
     df,
     harmonise_variable_names = NULL
 ) {
@@ -1286,9 +1286,9 @@ intern_pxweb2_harmonise_result_names <- function(
   }
 
   df
-} # end function intern_pxweb2_harmonise_result_names
+} # end function .pxweb2_harmonise_result_names
 
-intern_pxweb2_resolve_api_wildcards <- function(query_list,
+.pxweb2_resolve_api_wildcards <- function(query_list,
                                                 valid_values_list,
                                                 allow_api_wildcards = TRUE) {
   
@@ -1353,7 +1353,7 @@ intern_pxweb2_resolve_api_wildcards <- function(query_list,
 }
 
 
-intern_pxweb2_resolve_latest_period <- function(query_list,
+.pxweb2_resolve_latest_period <- function(query_list,
                                               variables_df,
                                               valid_values_list,
                                               latest_period_code = "9999") {
@@ -1405,7 +1405,7 @@ intern_pxweb2_resolve_latest_period <- function(query_list,
   query_list
 }
 
-intern_pxweb2_sanitize_query_values <- function(query, valid_values_list, 
+.pxweb2_sanitize_query_values <- function(query, valid_values_list, 
                                                 on_all_values_invalid = "stop",
                                                 warn = TRUE) {
   if (!on_all_values_invalid %in% c("stop", "*", "null")) {
@@ -1488,7 +1488,7 @@ intern_pxweb2_sanitize_query_values <- function(query, valid_values_list,
 }
 
 
-intern_pxweb2_rate_limiter <- local({
+.pxweb2_rate_limiter <- local({
   times <- numeric(0)              # timestamps (sec) of recent calls
   max_calls <- 30L
   window <- 10                      # seconds
@@ -1519,12 +1519,12 @@ intern_pxweb2_rate_limiter <- local({
 
 .pxweb2_api_log$rows <- list()
 
-intern_pxweb2_api_log_reset <- function() {
+.pxweb2_api_log_reset <- function() {
   .pxweb2_api_log$rows <- list()
   invisible(NULL)
 }
 
-intern_pxweb2_api_log_get <- function() {
+.pxweb2_api_log_get <- function() {
   if (length(.pxweb2_api_log$rows) == 0) {
     return(tibble::tibble(
       time = as.POSIXct(character()),
@@ -1538,7 +1538,7 @@ intern_pxweb2_api_log_get <- function() {
   tibble::as_tibble(do.call(rbind, lapply(.pxweb2_api_log$rows, as.data.frame)))
 }
 
-intern_pxweb2_api_endpoint_type <- function(url) {
+.pxweb2_api_endpoint_type <- function(url) {
   url_chr <- as.character(url)
   
   if (grepl("/metadata", url_chr, fixed = TRUE)) {
@@ -1561,7 +1561,7 @@ intern_pxweb2_api_endpoint_type <- function(url) {
   "other"
 }
 
-intern_pxweb2_api_log_add <- function(method, url, status, attempt) {
+.pxweb2_api_log_add <- function(method, url, status, attempt) {
   .pxweb2_api_log$rows <- c(
     .pxweb2_api_log$rows,
     list(list(
@@ -1570,24 +1570,24 @@ intern_pxweb2_api_log_add <- function(method, url, status, attempt) {
       url = as.character(url),
       status = as.integer(status),
       attempt = as.integer(attempt),
-      endpoint_type = intern_pxweb2_api_endpoint_type(url)
+      endpoint_type = .pxweb2_api_endpoint_type(url)
     ))
   )
   
   invisible(NULL)
 }
 
-intern_pxweb2_GET <- function(url, ..., max_tries = 3, retry_wait_default = 10) {
+.pxweb2_GET <- function(url, ..., max_tries = 3, retry_wait_default = 10) {
   
   resp <- NULL
   
   for (attempt in seq_len(max_tries)) {
     
-    intern_pxweb2_rate_limiter()
+    .pxweb2_rate_limiter()
     
     resp <- httr::GET(url, ...)
     
-    intern_pxweb2_api_log_add(
+    .pxweb2_api_log_add(
       method = "GET",
       url = url,
       status = httr::status_code(resp),
@@ -1606,17 +1606,17 @@ intern_pxweb2_GET <- function(url, ..., max_tries = 3, retry_wait_default = 10) 
   resp
 }
 
-intern_pxweb2_POST <- function(url, ..., max_tries = 3, retry_wait_default = 10) {
+.pxweb2_POST <- function(url, ..., max_tries = 3, retry_wait_default = 10) {
   
   resp <- NULL
   
   for (attempt in seq_len(max_tries)) {
     
-    intern_pxweb2_rate_limiter()
+    .pxweb2_rate_limiter()
     
     resp <- httr::POST(url, ...)
     
-    intern_pxweb2_api_log_add(
+    .pxweb2_api_log_add(
       method = "POST",
       url = url,
       status = httr::status_code(resp),
@@ -1636,17 +1636,17 @@ intern_pxweb2_POST <- function(url, ..., max_tries = 3, retry_wait_default = 10)
 }
 
 
-intern_pxweb2_make_chunks <- function(variables_df, query, valid_values_list,
+.pxweb2_make_chunks <- function(variables_df, query, valid_values_list,
                                       max_cells = 150000) {
-  total_cells <- intern_pxweb2_count_cells(variables_df, query)
+  total_cells <- .pxweb2_count_cells(variables_df, query)
   
   if (total_cells <= max_cells) {
     return(list(query))
   }
   
-  split_var <- intern_pxweb2_choose_split_variable(variables_df, query)
+  split_var <- .pxweb2_choose_split_variable(variables_df, query)
   
-  selected_vals <- intern_pxweb2_get_valuecodes(query, split_var)
+  selected_vals <- .pxweb2_get_valuecodes(query, split_var)
   
   if (is.null(selected_vals) || length(selected_vals) == 0 ||
       (length(selected_vals) == 1 && identical(selected_vals, "*"))) {
@@ -1677,9 +1677,9 @@ intern_pxweb2_make_chunks <- function(variables_df, query, valid_values_list,
     ),
     .f = function(st, v) {
       # the cost of adding v (incl. other dimensions)
-      cost <- intern_pxweb2_count_cells(
+      cost <- .pxweb2_count_cells(
         variables_df,
-        intern_pxweb2_set_valuecodes_in_query(query, split_var, v)
+        .pxweb2_set_valuecodes_in_query(query, split_var, v)
       )
 
       # if v on its own is larger than max_cells (unlikely, but guard for it)
@@ -1715,11 +1715,11 @@ intern_pxweb2_make_chunks <- function(variables_df, query, valid_values_list,
     state$chunks <- append(state$chunks, list(state$cur_vals))
   }
   
-  purrr::map(state$chunks, ~ intern_pxweb2_set_valuecodes_in_query(query, split_var, .x))
+  purrr::map(state$chunks, ~ .pxweb2_set_valuecodes_in_query(query, split_var, .x))
 }
 
 
-intern_pxweb2_set_valuecodes_in_query <- function(query, variable, values) {
+.pxweb2_set_valuecodes_in_query <- function(query, variable, values) {
   idx <- purrr::detect_index(
     query$selection,
     ~ identical(.x$variableCode, variable)
@@ -1734,7 +1734,7 @@ intern_pxweb2_set_valuecodes_in_query <- function(query, variable, values) {
 }
 
 
-intern_pxweb2_choose_split_variable <- function(variables_df, query = list()) {
+.pxweb2_choose_split_variable <- function(variables_df, query = list()) {
   # choose a variable to split on when a request has more than 150,000 rows
 
   candidates <- variables_df |>
@@ -1755,7 +1755,7 @@ intern_pxweb2_choose_split_variable <- function(variables_df, query = list()) {
     dplyr::pull(code)
 }
 
-intern_pxweb2_list_to_query_list <- function(variables_df,
+.pxweb2_list_to_query_list <- function(variables_df,
                                              query = list(),
                                              valid_values_list, 
                                              default_value = "*",
@@ -1873,7 +1873,7 @@ intern_pxweb2_list_to_query_list <- function(variables_df,
 } 
 
 
-intern_pxweb2_create_variable_query_list <- function(variables_df,
+.pxweb2_create_variable_query_list <- function(variables_df,
                                                      default_value = "*",
                                                      overrides = list()) {
   selections <- purrr::map(
@@ -1913,11 +1913,11 @@ pxweb2_get_metadata <- function(
     base_url = "https://statistikdatabasen.scb.se/api/v2/tables/"
 ){
   if (is.null(table_id)) stop("table_id must be supplied")
-  intern_pxweb2_check_table_id(table_id)
+  .pxweb2_check_table_id(table_id)
 
   meta_url <- paste0(base_url, table_id, "/metadata")
 
-  resp <- intern_pxweb2_GET(meta_url, httr::accept_json())
+  resp <- .pxweb2_GET(meta_url, httr::accept_json())
 
   if (httr::status_code(resp) == 404) {
     stop(
@@ -1948,10 +1948,10 @@ pxweb2_table_exists <- function(
     table_id,
     base_url = "https://statistikdatabasen.scb.se/api/v2/tables/"
 ) {
-  intern_pxweb2_check_table_id(table_id)
+  .pxweb2_check_table_id(table_id)
 
   meta_url <- paste0(base_url, table_id, "/metadata")
-  resp <- intern_pxweb2_GET(meta_url, httr::accept_json())
+  resp <- .pxweb2_GET(meta_url, httr::accept_json())
 
   if (httr::status_code(resp) == 404) return(FALSE)
   httr::stop_for_status(resp)
@@ -1959,7 +1959,7 @@ pxweb2_table_exists <- function(
 }
 
 # derive the API root ("https://.../api/v2/") from a tables base_url
-intern_pxweb2_api_root <- function(base_url) {
+.pxweb2_api_root <- function(base_url) {
   sub("tables/?$", "", base_url)
 }
 
@@ -1990,13 +1990,13 @@ pxweb2_get_codelist <- function(
     stop("codelist_id must be a non-empty string of length 1.", call. = FALSE)
   }
 
-  cl_url <- paste0(intern_pxweb2_api_root(base_url), "codelists/", codelist_id)
-  resp <- intern_pxweb2_GET(cl_url, httr::accept_json(), query = list(lang = lang))
+  cl_url <- paste0(.pxweb2_api_root(base_url), "codelists/", codelist_id)
+  resp <- .pxweb2_GET(cl_url, httr::accept_json(), query = list(lang = lang))
 
   if (httr::http_error(resp)) {
     stop(
       "Could not fetch code list '", codelist_id, "' from ",
-      intern_pxweb2_api_root(base_url), "codelists/ (HTTP ",
+      .pxweb2_api_root(base_url), "codelists/ (HTTP ",
       httr::status_code(resp), "). Check the code-list id.",
       call. = FALSE
     )
@@ -2037,7 +2037,7 @@ pxweb2_list_codelists <- function(
 ) {
   if (is.null(table)) stop("table must be supplied, either as a table id or a metadata object.")
   if (!is.list(table)) {
-    intern_pxweb2_check_table_id(table)
+    .pxweb2_check_table_id(table)
     metadata <- pxweb2_get_metadata(table, base_url = base_url)
   } else metadata <- table
 
@@ -2067,7 +2067,7 @@ pxweb2_list_codelists <- function(
   dplyr::bind_rows(rows)
 }
 
-intern_pxweb2_is_pxweb_query_list <- function(x) {
+.pxweb2_is_pxweb_query_list <- function(x) {
   is.list(x) &&
     !is.null(x$selection) &&
     is.list(x$selection) &&
@@ -2077,14 +2077,14 @@ intern_pxweb2_is_pxweb_query_list <- function(x) {
     ))
 }
 
-intern_pxweb2_count_cells <- function(variables_df, query = list()) {
+.pxweb2_count_cells <- function(variables_df, query = list()) {
   
   # empty query => select all values (i.e. same as "*" for all dimensions)
   if (length(query) == 0) {
     return(prod(as.integer(variables_df$size)))
   }
 
-  if (!intern_pxweb2_is_pxweb_query_list(query)) {
+  if (!.pxweb2_is_pxweb_query_list(query)) {
     stop("`query` must be a PxWeb query_list: list(selection = list(list(variableCode=..., valueCodes=list(...)), ...))")
   }
 
@@ -2156,7 +2156,7 @@ pxweb2_get_variables <- function(
   if (is.null(table)) stop("table must be supplied, either as a table id or a metadata object.")
 
   if (!is.list(table)) {
-    intern_pxweb2_check_table_id(table)
+    .pxweb2_check_table_id(table)
     metadata <- pxweb2_get_metadata(table, base_url = base_url)
   } else metadata <- table
 
@@ -2216,7 +2216,7 @@ pxweb2_get_values <- function(
 
   if (is.null(table)) stop("table must be supplied, either as a table id or a metadata object.")
   if (!is.list(table)) {
-    intern_pxweb2_check_table_id(table)
+    .pxweb2_check_table_id(table)
     metadata <- pxweb2_get_metadata(table, base_url = base_url)
   } else metadata <- table
 
@@ -2247,7 +2247,7 @@ pxweb2_get_values <- function(
 
   # ---------------------------------------------------------------------------
   # helper: normalise variable name/code -> code
-  intern_to_var_code <- function(name) {
+  .to_var_code <- function(name) {
     hits <- variables_df$code[
       tolower(variables_df$code)  %in% tolower(name) |
         tolower(variables_df$label) %in% tolower(name)
@@ -2256,7 +2256,7 @@ pxweb2_get_values <- function(
   }
 
   # helper: extract code-list info (id + label + url) from a dimension element
-  intern_cl_info <- function(dim_el) {
+  .cl_info <- function(dim_el) {
     cl <- purrr::pluck(dim_el, "extension", "codelists", .default = NULL)
     if (is.null(cl) || length(cl) == 0) {
       return(tibble::tibble(code = character(), label = character(),
@@ -2281,7 +2281,7 @@ pxweb2_get_values <- function(
   # ---------------------------------------------------------------------------
   # count the total number of code lists in the table (for "auto" mode)
   total_codelists <- sum(purrr::map_int(table_variables, function(dim_el) {
-    nrow(intern_cl_info(dim_el))
+    nrow(.cl_info(dim_el))
   }))
 
   # ---------------------------------------------------------------------------
@@ -2339,7 +2339,7 @@ pxweb2_get_values <- function(
 
     # group by variable code (there can be several entries with the same name, e.g. Region = "agg_X", Region = "agg_Y")
     for (i in seq_along(ia)) {
-      var_codes <- intern_to_var_code(ia_names[i])
+      var_codes <- .to_var_code(ia_names[i])
       if (length(var_codes) == 0) next
       val <- ia[[i]]
 
@@ -2371,7 +2371,7 @@ pxweb2_get_values <- function(
     if (exists(u, envir = .codelist_cache, inherits = FALSE)) {
       return(get(u, envir = .codelist_cache, inherits = FALSE))
     }
-    resp <- intern_pxweb2_GET(u, httr::accept_json())
+    resp <- .pxweb2_GET(u, httr::accept_json())
     httr::stop_for_status(resp)
     out <- jsonlite::fromJSON(
       httr::content(resp, "text", encoding = "UTF-8"),
@@ -2382,7 +2382,7 @@ pxweb2_get_values <- function(
   }, otherwise = NULL)
   
   # helper: fetch the full contents of a selection of code lists (filtered on agg ids if given)
-  intern_fetch_agg_values <- function(cl_info_df, agg_ids_filter = NULL) {
+  .fetch_agg_values <- function(cl_info_df, agg_ids_filter = NULL) {
     # agg_ids_filter: character vector of specific agg ids to fetch, NULL = all
     df <- cl_info_df
     if (!is.null(agg_ids_filter)) {
@@ -2442,7 +2442,7 @@ pxweb2_get_values <- function(
     }
 
     mode <- var_mode[[dim_name]] %||% "codelists"
-    cl_info <- intern_cl_info(dim_el)
+    cl_info <- .cl_info(dim_el)
 
     if (mode == "none") {
       return(cat_df)
@@ -2459,7 +2459,7 @@ pxweb2_get_values <- function(
 
     if (mode == "all") {
       if (nrow(cl_info) == 0) return(cat_df)
-      return(dplyr::bind_rows(cat_df, intern_fetch_agg_values(cl_info)))
+      return(dplyr::bind_rows(cat_df, .fetch_agg_values(cl_info)))
     }
 
     # specific agg ids (one or several, newline-separated internally)
@@ -2483,7 +2483,7 @@ pxweb2_get_values <- function(
       return(cat_df)
     }
 
-    dplyr::bind_rows(cat_df, intern_fetch_agg_values(cl_info, agg_ids_filter = agg_ids))
+    dplyr::bind_rows(cat_df, .fetch_agg_values(cl_info, agg_ids_filter = agg_ids))
   })
 
   # ---------------------------------------------------------------------------
@@ -2667,7 +2667,7 @@ pxweb2_search_tables <- function(query = NULL,
   ))
   
   fetch_page <- function(pageNumber) {
-    resp <- intern_pxweb2_GET(
+    resp <- .pxweb2_GET(
       url = base_url,
       query = c(qs_base, list(pageNumber = pageNumber)),
       httr::accept_json(),
@@ -2717,17 +2717,17 @@ pxweb2_search_tables <- function(query = NULL,
 }
 
 # function helpers to create queries for aggregations as well
-intern_pxweb2_request <- function(body, extra_query = list(), tag = list()) {
+.pxweb2_request <- function(body, extra_query = list(), tag = list()) {
   list(body = body, extra_query = extra_query, tag = tag)
 }
 
-intern_pxweb2_get_valuecodes <- function(query_list, var) {
+.pxweb2_get_valuecodes <- function(query_list, var) {
   i <- which(purrr::map_chr(query_list$selection, "variableCode") == var)
   if (length(i) == 0) return(NULL)
   unlist(query_list$selection[[i]]$valueCodes, use.names = FALSE)
 }
 
-intern_pxweb2_set_valuecodes <- function(query_list, var, vals) {
+.pxweb2_set_valuecodes <- function(query_list, var, vals) {
   i <- which(purrr::map_chr(query_list$selection, "variableCode") == var)
   if (length(i) == 0) return(query_list)
   
@@ -2747,13 +2747,13 @@ intern_pxweb2_set_valuecodes <- function(query_list, var, vals) {
 }
 
 
-intern_pxweb2_make_request_chunks <- function(variables_df, request_list, valid_values_list, max_cells = 150000) {
+.pxweb2_make_request_chunks <- function(variables_df, request_list, valid_values_list, max_cells = 150000) {
   
   request_list <- purrr::compact(request_list)
   
   request_list |>
     purrr::map(function(.req) {
-      bodies <- intern_pxweb2_make_chunks(
+      bodies <- .pxweb2_make_chunks(
         variables_df,
         .req$body,
         valid_values_list = valid_values_list,
@@ -2761,7 +2761,7 @@ intern_pxweb2_make_request_chunks <- function(variables_df, request_list, valid_
       )
       bodies <- purrr::compact(bodies)
       
-      purrr::map(bodies, ~ intern_pxweb2_request(
+      purrr::map(bodies, ~ .pxweb2_request(
         body = .x,
         extra_query = .req$extra_query,
         tag = .req$tag
@@ -2770,7 +2770,7 @@ intern_pxweb2_make_request_chunks <- function(variables_df, request_list, valid_
     purrr::flatten()
 }
 
-intern_pxweb2_is_special_value <- function(vals) {
+.pxweb2_is_special_value <- function(vals) {
   length(vals) == 1 && (
     identical(vals, "*") ||
       identical(vals, "**") ||
@@ -2779,13 +2779,13 @@ intern_pxweb2_is_special_value <- function(vals) {
   )
 }
 
-intern_pxweb2_var_alternatives <- function(query_list,
+.pxweb2_var_alternatives <- function(query_list,
                                            valid_values_list,
                                            var,
                                            output_values = "aggregated",    # can also be single
                                            warn = TRUE) {
   
-  vals <- intern_pxweb2_get_valuecodes(query_list, var)
+  vals <- .pxweb2_get_valuecodes(query_list, var)
   if (is.null(vals) || length(vals) == 0) {
     return(list(list(var = var, vals = NULL, extra_query = list())))
   }
@@ -2878,14 +2878,14 @@ intern_pxweb2_var_alternatives <- function(query_list,
 }
 
 
-intern_pxweb2_expand_requests_generic <- function(query_list, valid_values_list,
+.pxweb2_expand_requests_generic <- function(query_list, valid_values_list,
                                                   output_values = "aggregated",    # can also be single
                                                   warn = TRUE) {
 
   vars_in_body <- purrr::map_chr(query_list$selection, "variableCode")
 
   # build alternatives per variable
-  alts <- purrr::map(vars_in_body, ~ intern_pxweb2_var_alternatives(
+  alts <- purrr::map(vars_in_body, ~ .pxweb2_var_alternatives(
     query_list, valid_values_list, var = .x,
     output_values = output_values, warn = warn
   ))
@@ -2900,13 +2900,13 @@ intern_pxweb2_expand_requests_generic <- function(query_list, valid_values_list,
     
     for (opt in choice) {
       if (!is.null(opt$vals)) {
-        body <- intern_pxweb2_set_valuecodes(body, opt$var, opt$vals)
+        body <- .pxweb2_set_valuecodes(body, opt$var, opt$vals)
       }
       if (length(opt$extra_query) > 0) {
         extra <- c(extra, opt$extra_query)
       }
     }
     
-    intern_pxweb2_request(body = body, extra_query = extra, tag = list(kind = "expanded"))
+    .pxweb2_request(body = body, extra_query = extra, tag = list(kind = "expanded"))
   })
 }

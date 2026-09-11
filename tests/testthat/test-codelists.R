@@ -5,13 +5,13 @@ test_that("pxweb2_get_codelist validates its input", {
   expect_error(pxweb2_get_codelist(c("a", "b")))
 })
 
-test_that("intern_pxweb2_api_root strips the tables segment", {
+test_that(".pxweb2_api_root strips the tables segment", {
   expect_identical(
-    pxweb2r:::intern_pxweb2_api_root("https://statistikdatabasen.scb.se/api/v2/tables/"),
+    pxweb2r:::.pxweb2_api_root("https://statistikdatabasen.scb.se/api/v2/tables/"),
     "https://statistikdatabasen.scb.se/api/v2/"
   )
   expect_identical(
-    pxweb2r:::intern_pxweb2_api_root("https://example.org/api/v2/tables"),
+    pxweb2r:::.pxweb2_api_root("https://example.org/api/v2/tables"),
     "https://example.org/api/v2/"
   )
 })
