@@ -10,6 +10,7 @@ pxweb2_get_values(
   return_df_if_only_one_variable = TRUE,
   include_aggregations = "auto",
   auto_limit = 30L,
+  quiet = FALSE,
   aggregation_member_sep = ";",
   base_url = "https://statistikdatabasen.scb.se/api/v2/tables/"
 )
@@ -27,6 +28,12 @@ instead of a list when only one variable is requested.}
 \code{"all"}, \code{"none"}, \code{"codelists"}, or a named vector per variable.}
 
 \item{auto_limit}{Max number of code-list calls for \code{"auto"}.}
+
+\item{quiet}{If \code{TRUE}, suppresses the \code{include_aggregations = "auto"}
+summary message and the "aggregation code lists not fetched in full"
+notice. Default \code{FALSE} keeps today's behaviour. Does not suppress the
+"variables ... do not exist in the table" notice, since that one usually
+points at a real typo in \code{variables}.}
 
 \item{aggregation_member_sep}{Character(s) that separate members in an
 aggregation.}

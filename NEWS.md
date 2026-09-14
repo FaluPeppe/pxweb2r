@@ -23,6 +23,26 @@
 * `pxweb2_data_script_template(to_clipboard = TRUE)` uses `clipr` (Suggests)
   instead of `writeLines(con = "clipboard")` and falls back to printing only
   when no clipboard is available, e.g. on headless Linux.
+* New: `quiet` argument on `pxweb2_get_data()` and `pxweb2_get_values()`.
+  `quiet = TRUE` suppresses the informational `message()`/`cat()` output these
+  functions print about things a well-tested query already expects - the
+  `include_aggregations = "auto"` summary, "latest period" substitution
+  notices when fetching several tables at once, and the "invalid values
+  removed" notices from `on_all_values_invalid`. It never suppresses errors
+  or genuine `warning()`s (unknown variables, mismatched result structures
+  across tables, `on_all_values_invalid = "stop"`), only the routine notices.
+  Default `FALSE` keeps the existing (verbose) behaviour.
+* Fix: `.pxweb2_get_time_values()` (used internally to resolve
+  `latest_period_code` across one or more tables) called `pxweb2_get_values()`
+  without arguments, which meant it always fetched aggregation metadata for
+  every variable (not just the time variable it actually needed) and always
+  printed an `include_aggregations = "auto"` message - even when the calling
+  `pxweb2_get_data(quiet = TRUE)` asked it not to. Now calls with
+  `include_aggregations = "none", quiet = TRUE` explicitly.
+* Fix: `pxweb2_get_data(table = <vector of several tables>, auto_limit = ...)`
+  never actually passed `auto_limit` on to `.pxweb2_get_multiple_tables()`,
+  so a custom `auto_limit` was silently ignored (always used the default,
+  30) when fetching more than one table at once.
 
 ## Name mapping from func_pxweb2.R
 

@@ -19,7 +19,8 @@ pxweb2_get_data(
   deso_regso_versions = "latest",
   split_deso_regso_by_municipality = TRUE,
   include_aggregations = "none",
-  auto_limit = 30L
+  auto_limit = 30L,
+  quiet = FALSE
 )
 }
 \arguments{
@@ -64,6 +65,17 @@ are added as separate columns.}
 
 \item{auto_limit}{Max number of code-list calls when
 \code{include_aggregations = "auto"}.}
+
+\item{quiet}{If \code{TRUE}, suppresses the informational messages this function
+(and the calls it makes to \code{\link[=pxweb2_get_values]{pxweb2_get_values()}}) would otherwise print -
+the \code{include_aggregations = "auto"} summary, "latest period" substitution
+notices when fetching several tables, and the "invalid values removed"
+notices from \code{on_all_values_invalid}. Genuine problems (a table that does
+not exist, an unknown variable name, an \code{on_all_values_invalid = "stop"}
+error, mismatched result structures across tables) are never suppressed -
+\code{quiet} only silences messages about things the query was already
+designed to expect, which is typically the case in a finished, tested
+script. Default \code{FALSE} keeps today's behaviour.}
 }
 \value{
 A \code{tibble} with the fetched data.

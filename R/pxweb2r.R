@@ -59,6 +59,16 @@
 #'   [pxweb2_get_values()].
 #' @param auto_limit Max number of code-list calls when
 #'   `include_aggregations = "auto"`.
+#' @param quiet If `TRUE`, suppresses the informational messages this function
+#'   (and the calls it makes to [pxweb2_get_values()]) would otherwise print -
+#'   the `include_aggregations = "auto"` summary, "latest period" substitution
+#'   notices when fetching several tables, and the "invalid values removed"
+#'   notices from `on_all_values_invalid`. Genuine problems (a table that does
+#'   not exist, an unknown variable name, an `on_all_values_invalid = "stop"`
+#'   error, mismatched result structures across tables) are never suppressed -
+#'   `quiet` only silences messages about things the query was already
+#'   designed to expect, which is typically the case in a finished, tested
+#'   script. Default `FALSE` keeps today's behaviour.
 #'
 #' @return A `tibble` with the fetched data.
 #' @export
@@ -77,13 +87,14 @@ pxweb2_get_data <- function(
     deso_regso_versions = "latest",          # if there are several DeSO/RegSO versions, "latest" uses the most recent version that has a value, "sum" sums all versions, NULL does nothing
     split_deso_regso_by_municipality = TRUE, # adds the columns kommun_kod and kommun and keeps only the RegSO/DeSO name in the region column
     include_aggregations = "none",           # controls aggregations in valid_values_list (see pxweb2_get_values): "none"/FALSE = none, "all"/TRUE = all, "auto" = auto, "codelists" = metadata only, or a named vector c(Region = "agg_RegionLA2018")
-    auto_limit = 30L                         # max total number of code-list calls when include_aggregations = "auto"
+    auto_limit = 30L,                        # max total number of code-list calls when include_aggregations = "auto"
+    quiet = FALSE                            # TRUE suppresses informational messages (include_aggregations/"auto", latest-period substitution, "invalid values removed") - never suppresses errors or genuine warnings
 ){
   if (is.null(table)) stop("table_id must be supplied")
   if (!on_all_values_invalid %in% c("stop", "*", "null")) {
     stop("Invalid value for on_all_values_invalid. Allowed: \"stop\", \"*\", \"null\".")
   }
-  
+
   # check whether more than one table was requested
   if (!is.list(table) && length(table) > 1) {
     return(
@@ -101,7 +112,9 @@ pxweb2_get_data <- function(
         harmonise_variable_names = harmonise_variable_names,
         deso_regso_versions = deso_regso_versions,
         split_deso_regso_by_municipality = split_deso_regso_by_municipality,
-        include_aggregations = include_aggregations
+        include_aggregations = include_aggregations,
+        auto_limit = auto_limit,
+        quiet = quiet
       )
     )
   }
@@ -124,7 +137,7 @@ pxweb2_get_data <- function(
   data_url <- paste0(base_url, table, "/data")
   
   variables_df <- pxweb2_get_variables(metadata)          # fetch all variables
-  valid_values_list <- pxweb2_get_values(metadata, include_aggregations = include_aggregations, auto_limit = auto_limit)      # fetch all unique values for all variables (incl. aggregations if selected)
+  valid_values_list <- pxweb2_get_values(metadata, include_aggregations = include_aggregations, auto_limit = auto_limit, quiet = quiet)      # fetch all unique values for all variables (incl. aggregations if selected)
   
   # build a query list from the supplied query, or one covering all valid values
   query_list <- if (is.null(query)) {
@@ -154,7 +167,8 @@ pxweb2_get_data <- function(
     ) |>
     .pxweb2_sanitize_query_values(
       valid_values_list = valid_values_list,
-      on_all_values_invalid = on_all_values_invalid
+      on_all_values_invalid = on_all_values_invalid,
+      warn = !quiet
     )
   
   
@@ -860,7 +874,16 @@ pxweb2_table_needs_update <- function(
 .pxweb2_get_time_values <- function(metadata) {
 
   variables_df <- pxweb2_get_variables(metadata)
-  valid_values_list <- pxweb2_get_values(metadata)
+  # Bugfix (confirmed genom test): denna hjälpfunktion behöver bara det rena värdet för
+  # tidsvariabeln, aldrig aggregeringar för några variabler - men anropade tidigare
+  # pxweb2_get_values(metadata) utan argument, vilket alltid drog in dess defaultvärden
+  # include_aggregations = "auto" (onödig extra hämtning av aggregeringsmetadata för samtliga
+  # variabler) och quiet = FALSE (skrev alltid ut en "include_aggregations"-rad, oavsett vad
+  # anroparen bad om - det här var källan till att quiet = TRUE i pxweb2_get_data()/
+  # .pxweb2_get_multiple_tables() ändå läckte igenom en rad per tabell när latest_period_code
+  # användes). Sätts nu uttryckligen till "none"/TRUE eftersom denna hjälpfunktion aldrig
+  # behöver visa något alls.
+  valid_values_list <- pxweb2_get_values(metadata, include_aggregations = "none", quiet = TRUE)
 
   time_var <- .pxweb2_find_time_variable(variables_df)
 
@@ -1002,7 +1025,8 @@ pxweb2_table_needs_update <- function(
     deso_regso_versions = "latest",
     split_deso_regso_by_municipality = TRUE,
     include_aggregations = "none",
-    auto_limit = 30L
+    auto_limit = 30L,
+    quiet = FALSE
 ) {
 
   if (!is.character(tables) || length(tables) < 1) {
@@ -1025,13 +1049,13 @@ pxweb2_table_needs_update <- function(
     }
     total <- purrr::map_int(metadata_list, .cl_count) |> sum()
     include_aggregations <- if (total <= auto_limit) {
-      message(
+      if (!quiet) message(
         "include_aggregations = \"auto\": found ", total, " code lists in total (",
         length(tables), " tables, limit ", auto_limit, ") and is fetching all aggregations."
       )
       "all"
     } else {
-      message(
+      if (!quiet) message(
         "include_aggregations = \"auto\": found ", total, " code lists in total (",
         length(tables), " tables), which exceeds the limit ", auto_limit,
         ". Fetching code-list metadata only (\"codelists\"). Set \"all\" to fetch everything."
@@ -1070,7 +1094,7 @@ pxweb2_table_needs_update <- function(
       })
     ]
 
-    message(
+    if (!quiet) message(
       "latest_period_code = '",
       latest_period_code,
       "' was replaced with the latest period in the tables: ",
@@ -1080,7 +1104,7 @@ pxweb2_table_needs_update <- function(
     if (length(tables_to_fetch) < length(tables)) {
       tables_skipped <- setdiff(tables, tables_to_fetch)
 
-      message(
+      if (!quiet) message(
         "The following table(s) do not contain ",
         latest_period,
         " and are therefore not fetched: ",
@@ -1119,7 +1143,8 @@ pxweb2_table_needs_update <- function(
         deso_regso_versions = deso_regso_versions,
         split_deso_regso_by_municipality = split_deso_regso_by_municipality,
         include_aggregations = include_aggregations,
-        auto_limit = auto_limit
+        auto_limit = auto_limit,
+        quiet = quiet
       )
 
       # if the table returned NULL (e.g. due to "null" mode) -> skip harmonisation/mutate
@@ -2194,6 +2219,11 @@ pxweb2_get_variables <- function(
 #' @param aggregation_member_sep Character(s) that separate members in an
 #'   aggregation.
 #' @param base_url Base URL of the PxWeb API v2.
+#' @param quiet If `TRUE`, suppresses the `include_aggregations = "auto"`
+#'   summary message and the "aggregation code lists not fetched in full"
+#'   notice. Default `FALSE` keeps today's behaviour. Does not suppress the
+#'   "variables ... do not exist in the table" notice, since that one usually
+#'   points at a real typo in `variables`.
 #'
 #' @return A named list (or `tibble`, see `return_df_if_only_one_variable`) of
 #'   valid values per variable.
@@ -2210,6 +2240,7 @@ pxweb2_get_values <- function(
     #   => selective control per variable; the name can be a code or a label (case-insensitive)
     #   => value per variable: "all", "codelists", or one/several agg ids (e.g. "agg_RegionLA2018")
     auto_limit = 30L,                    # max number of code-list calls for "auto"
+    quiet = FALSE,                       # TRUE suppresses the include_aggregations = "auto" messages below
     aggregation_member_sep = ";",        # aggregation members are separated with this character(s)
     base_url = "https://statistikdatabasen.scb.se/api/v2/tables/"
 ) {
@@ -2488,12 +2519,12 @@ pxweb2_get_values <- function(
 
   # ---------------------------------------------------------------------------
   # messages
-  if (auto_chose_all) {
+  if (!quiet && auto_chose_all) {
     message(
       "include_aggregations = \"auto\": found ", total_codelists,
       " code lists (<= ", auto_limit, ") and fetched all aggregations automatically."
     )
-  } else if (length(vars_with_codelist_only) > 0) {
+  } else if (!quiet && length(vars_with_codelist_only) > 0) {
     message(
       "The following variables have aggregation code lists that were not fetched in full: ",
       paste(vars_with_codelist_only, collapse = ", "), ".\n",
@@ -2590,7 +2621,9 @@ pxweb2_data_script_template <- function(table_id,
   meta <- pxweb2_get_metadata(table_id, base_url = base_url)
   title_txt <- meta$label
   variables_df <- pxweb2_get_variables(meta)
-  values_df <- pxweb2_get_values(meta)
+  # Ingen anledning att hämta aggregeringar eller skriva ut include_aggregations-meddelandet här -
+  # funktionen genererar bara ett skript utifrån variablernas vanliga värden.
+  values_df <- pxweb2_get_values(meta, include_aggregations = "none", quiet = TRUE)
   vars <- variables_df$code
   
   vals <- purrr::map_chr(vars, function(var) {
