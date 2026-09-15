@@ -38,11 +38,24 @@ meta <- pxweb2_get_metadata("TAB6104")
 pxweb2_get_variables(meta)
 pxweb2_get_values(meta)
 
-# Search tables
-pxweb2_search_tables("befolkning")
-
 # Does the table exist?
 pxweb2_table_exists("TAB6104")
+```
+
+## Finding a table and building the query
+
+A quick way to go from "I need some statistic" to a working script: search for
+the table, then let `pxweb2_data_script_template()` write the
+`pxweb2_get_data()` call for you, based on the table's actual variables.
+
+```r
+# 1. Search for a table by free text
+pxweb2_search_tables("befolkning")
+
+# 2. Generate a ready-made pxweb2_get_data() call for that table id - printed
+#    and (if available) copied straight to the clipboard, ready to paste in
+#    and adjust
+pxweb2_data_script_template("TAB6104")
 ```
 
 ## Other PxWeb instances
@@ -50,6 +63,15 @@ pxweb2_table_exists("TAB6104")
 Every function takes a `base_url` argument. Table ids are not validated against
 Statistics Sweden's naming - if an id does not exist on the given `base_url`,
 `pxweb2_get_metadata()` raises a clear error (HTTP 404).
+
+## Related packages
+
+[`pxweb`](https://github.com/rOpenGov/pxweb) (rOpenGov) is the established,
+general-purpose R client for PxWeb APIs and supports both v1 and v2. `pxweb2r`
+is a narrower, opinionated package built specifically against the **v2** API
+for Region Dalarna's own needs (e.g. combining multiple tables, DeSo/RegSo
+handling, and the workflow helpers above) - worth trying `pxweb` too if you
+need broader PxWeb-instance or v1 support.
 
 ## Licence
 
