@@ -7,9 +7,6 @@
 [Statistics Sweden's statistical database](https://www.statistikdatabasen.scb.se/) -
 and returns tidy `tibble` tables.
 
-The package is extracted from the function file `func_pxweb2.R` in
-[`Region-Dalarna/funktioner`](https://github.com/Region-Dalarna/funktioner).
-
 ## Installation
 
 ```r
