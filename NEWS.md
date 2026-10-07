@@ -51,7 +51,12 @@
   was silently sent anyway and rejected by the API with a bare "Too many
   cells selected" (HTTP 400). `pxweb2_get_data()` now stops immediately with
   a clear error instead, naming the variables to restrict and their current
-  selection sizes, before any request is sent.
+  selection sizes, before any request is sent. That error now also prints as
+  a plain, controlled `Error: ...` rather than wrapped in purrr's
+  `Error in \`purrr::map()\`: In index: n. Caused by error:` framing -
+  internal chunking uses a plain `lapply()` instead of `purrr::map()`, since
+  this error is already deliberate and informative, not a mapping bug to be
+  located by index.
 
 ## Name mapping from func_pxweb2.R
 

@@ -2816,11 +2816,17 @@ pxweb2_search_tables <- function(query = NULL,
 
 
 .pxweb2_make_request_chunks <- function(variables_df, request_list, valid_values_list, max_cells = 150000) {
-  
+
   request_list <- purrr::compact(request_list)
-  
+
+  # Plain lapply() rather than purrr::map(): .pxweb2_make_chunks() raises a
+  # deliberate, already-informative error when a request cannot be brought
+  # under max_cells (see "Too many cells selected" there). purrr::map() would
+  # wrap that in its own "Error in `purrr::map()` / In index: n" framing,
+  # which only adds noise around a controlled stop() - it is not a mapping
+  # bug to be located by index.
   request_list |>
-    purrr::map(function(.req) {
+    lapply(function(.req) {
       bodies <- .pxweb2_make_chunks(
         variables_df,
         .req$body,
@@ -2828,7 +2834,7 @@ pxweb2_search_tables <- function(query = NULL,
         max_cells = max_cells
       )
       bodies <- purrr::compact(bodies)
-      
+
       purrr::map(bodies, ~ .pxweb2_request(
         body = .x,
         extra_query = .req$extra_query,
