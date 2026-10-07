@@ -1687,11 +1687,38 @@ pxweb2_table_needs_update <- function(
       dplyr::pull(code)
     
   } else {
-    
+
     all_vals <- selected_vals
   }
-  
-  
+
+  # Splitting on split_var only helps if a single one of its values brings the
+  # request under max_cells. If it does not, the other dimensions alone are
+  # already too large and no amount of chunking on split_var will fix it -
+  # stop with a clear message instead of silently sending an oversized chunk
+  # that the API would reject anyway with a bare "Too many cells selected".
+  min_possible_cost <- .pxweb2_count_cells(
+    variables_df,
+    .pxweb2_set_valuecodes_in_query(query, split_var, all_vals[1])
+  )
+
+  if (min_possible_cost > max_cells) {
+    sizes <- .pxweb2_selection_sizes(variables_df, query)
+    sizes_other <- sort(sizes[names(sizes) != split_var], decreasing = TRUE)
+    breakdown <- paste0(
+      "  ", names(sizes_other), ": ", format(sizes_other, big.mark = " "),
+      collapse = "\n"
+    )
+    stop(
+      "Too many cells selected: even after splitting on '", split_var,
+      "' down to a single value, ", format(min_possible_cost, big.mark = " "),
+      " cells remain per request (max_cells = ", format(max_cells, big.mark = " "),
+      "). Restrict the query further - narrow at least one of these variables ",
+      "instead of using \"*\" (current number of selected values):\n",
+      breakdown,
+      call. = FALSE
+    )
+  }
+
   # greedy packing (purrr::accumulate): fill as close to max_cells as possible
   state <- purrr::accumulate(
     all_vals,
@@ -2102,11 +2129,15 @@ pxweb2_list_codelists <- function(
     ))
 }
 
-.pxweb2_count_cells <- function(variables_df, query = list()) {
-  
-  # empty query => select all values (i.e. same as "*" for all dimensions)
+# Number of selected cells per variable (named integer vector). Shared by
+# .pxweb2_count_cells() (which takes the product) and the "too many cells"
+# error message in .pxweb2_make_chunks() (which shows the per-variable
+# breakdown so the user knows what to restrict).
+.pxweb2_selection_sizes <- function(variables_df, query = list()) {
+
   if (length(query) == 0) {
-    return(prod(as.integer(variables_df$size)))
+    sizes <- as.integer(variables_df$size)
+    return(stats::setNames(sizes, variables_df$code))
   }
 
   if (!.pxweb2_is_pxweb_query_list(query)) {
@@ -2127,7 +2158,7 @@ pxweb2_list_codelists <- function(
     }
   ) |>
     purrr::flatten()
-  
+
   sizes <- purrr::map_int(variables_df$code, function(id) {
 
     # if the variable is in the query but is NA => "deselected" => cell contribution = 1
@@ -2161,8 +2192,12 @@ pxweb2_list_codelists <- function(
     # if the variable is missing from the query => assume full size
     as.integer(variables_df$size[variables_df$code == id][1])
   })
-  
-  prod(sizes)
+
+  stats::setNames(sizes, variables_df$code)
+}
+
+.pxweb2_count_cells <- function(variables_df, query = list()) {
+  prod(.pxweb2_selection_sizes(variables_df, query))
 }
 
 

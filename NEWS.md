@@ -43,6 +43,15 @@
   never actually passed `auto_limit` on to `.pxweb2_get_multiple_tables()`,
   so a custom `auto_limit` was silently ignored (always used the default,
   30) when fetching more than one table at once.
+* Fix: `.pxweb2_make_chunks()` only ever splits a request on a single
+  variable (the geo variable if the table has one, otherwise the largest
+  remaining dimension). On tables with enough other dimensions - e.g.
+  `SNI2007` with 1582 codes - splitting that one variable down to a single
+  value still leaves far more cells than `max_cells`, so the oversized chunk
+  was silently sent anyway and rejected by the API with a bare "Too many
+  cells selected" (HTTP 400). `pxweb2_get_data()` now stops immediately with
+  a clear error instead, naming the variables to restrict and their current
+  selection sizes, before any request is sent.
 
 ## Name mapping from func_pxweb2.R
 
