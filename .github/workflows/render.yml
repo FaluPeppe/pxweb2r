@@ -26,8 +26,11 @@ jobs:
 
       - name: Render pxweb2r.qmd to docs/index.html
         run: |
+          quarto render pxweb2r.qmd --to html
           mkdir -p docs
-          quarto render pxweb2r.qmd --to html --output index.html --output-dir docs
+          mv pxweb2r.html docs/index.html
+          rm -rf docs/pxweb2r_files
+          if [ -d pxweb2r_files ]; then mv pxweb2r_files docs/pxweb2r_files; fi
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
