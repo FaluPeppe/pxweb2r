@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="sv" xml:lang="sv"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Peter Möller">
+<meta name="dcterms.date" content="2026-11-05">
+
+<title>Pxweb2r</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="pxweb2r_files/libs/clipboard/clipboard.min.js"></script>
+<script src="pxweb2r_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="pxweb2r_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="pxweb2r_files/libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="pxweb2r_files/libs/quarto-html/popper.min.js"></script>
+<script src="pxweb2r_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="pxweb2r_files/libs/quarto-html/anchor.min.js"></script>
+<link href="pxweb2r_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="pxweb2r_files/libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="pxweb2r_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="pxweb2r_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="pxweb2r_files/libs/bootstrap/bootstrap-9ef24fef5a32c438c4af8f6a9d3ec740.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">Innehållsförteckning</h2>
+   
+  <ul>
+  <li><a href="#inledning" id="toc-inledning" class="nav-link active" data-scroll-target="#inledning"><span class="header-section-number">1</span> Inledning</a>
+  <ul class="collapse">
+  <li><a href="#installation" id="toc-installation" class="nav-link" data-scroll-target="#installation"><span class="header-section-number">1.1</span> Installation</a></li>
+  <li><a href="#vem-är-detta-för-och-var-ska-jag-börja-läsa" id="toc-vem-är-detta-för-och-var-ska-jag-börja-läsa" class="nav-link" data-scroll-target="#vem-är-detta-för-och-var-ska-jag-börja-läsa"><span class="header-section-number">1.2</span> Vem är detta för — och var ska jag börja läsa?</a></li>
+  </ul></li>
+  <li><a href="#tldr" id="toc-tldr" class="nav-link" data-scroll-target="#tldr"><span class="header-section-number">2</span> TL;DR</a></li>
+  <li><a href="#utforska-tabeller-och-metadata" id="toc-utforska-tabeller-och-metadata" class="nav-link" data-scroll-target="#utforska-tabeller-och-metadata"><span class="header-section-number">3</span> Utforska tabeller och metadata</a>
+  <ul class="collapse">
+  <li><a href="#söka-tabeller" id="toc-söka-tabeller" class="nav-link" data-scroll-target="#söka-tabeller"><span class="header-section-number">3.1</span> Söka tabeller</a></li>
+  <li><a href="#hämta-metadata" id="toc-hämta-metadata" class="nav-link" data-scroll-target="#hämta-metadata"><span class="header-section-number">3.2</span> Hämta metadata</a></li>
+  <li><a href="#lista-variabler" id="toc-lista-variabler" class="nav-link" data-scroll-target="#lista-variabler"><span class="header-section-number">3.3</span> Lista variabler</a></li>
+  <li><a href="#lista-värden-för-variabler" id="toc-lista-värden-för-variabler" class="nav-link" data-scroll-target="#lista-värden-för-variabler"><span class="header-section-number">3.4</span> Lista värden för variabler</a></li>
+  </ul></li>
+  <li><a href="#hamta-data-med-pxweb2_get_data" id="toc-hamta-data-med-pxweb2_get_data" class="nav-link" data-scroll-target="#hamta-data-med-pxweb2_get_data"><span class="header-section-number">4</span> Hämta data med pxweb2_get_data</a>
+  <ul class="collapse">
+  <li><a href="#grundexempel" id="toc-grundexempel" class="nav-link" data-scroll-target="#grundexempel"><span class="header-section-number">4.1</span> Grundexempel</a></li>
+  <li><a href="#använd-metadataobjekt-istället-för-tabell-id" id="toc-använd-metadataobjekt-istället-för-tabell-id" class="nav-link" data-scroll-target="#använd-metadataobjekt-istället-för-tabell-id"><span class="header-section-number">4.2</span> Använd metadataobjekt istället för tabell-id</a></li>
+  </ul></li>
+  <li><a href="#hämta-data-från-en-eller-flera-scb-tabeller" id="toc-hämta-data-från-en-eller-flera-scb-tabeller" class="nav-link" data-scroll-target="#hämta-data-från-en-eller-flera-scb-tabeller"><span class="header-section-number">5</span> Hämta data från en eller flera SCB-tabeller</a>
+  <ul class="collapse">
+  <li><a href="#hämta-data-från-en-tabell" id="toc-hämta-data-från-en-tabell" class="nav-link" data-scroll-target="#hämta-data-från-en-tabell"><span class="header-section-number">5.1</span> Hämta data från en tabell</a></li>
+  <li><a href="#hamta-den-senaste-tidsperioden" id="toc-hamta-den-senaste-tidsperioden" class="nav-link" data-scroll-target="#hamta-den-senaste-tidsperioden"><span class="header-section-number">5.2</span> Hämta den senaste tidsperioden</a></li>
+  <li><a href="#hämta-och-lägga-ihop-flera-tabeller" id="toc-hämta-och-lägga-ihop-flera-tabeller" class="nav-link" data-scroll-target="#hämta-och-lägga-ihop-flera-tabeller"><span class="header-section-number">5.3</span> Hämta och lägga ihop flera tabeller</a></li>
+  <li><a href="#harmonisering-av-variabelnamn" id="toc-harmonisering-av-variabelnamn" class="nav-link" data-scroll-target="#harmonisering-av-variabelnamn"><span class="header-section-number">5.4</span> Harmonisering av variabelnamn</a></li>
+  </ul></li>
+  <li><a href="#vanliga-urval-i-query" id="toc-vanliga-urval-i-query" class="nav-link" data-scroll-target="#vanliga-urval-i-query"><span class="header-section-number">6</span> Vanliga urval i query</a>
+  <ul class="collapse">
+  <li><a href="#hämta-alla-värden" id="toc-hämta-alla-värden" class="nav-link" data-scroll-target="#hämta-alla-värden"><span class="header-section-number">6.1</span> Hämta alla värden</a></li>
+  <li><a href="#hämta-senaste-tidsperiod-med-9999" id="toc-hämta-senaste-tidsperiod-med-9999" class="nav-link" data-scroll-target="#hämta-senaste-tidsperiod-med-9999"><span class="header-section-number">6.2</span> Hämta senaste tidsperiod med 9999</a></li>
+  <li><a href="#hämta-flera-värden" id="toc-hämta-flera-värden" class="nav-link" data-scroll-target="#hämta-flera-värden"><span class="header-section-number">6.3</span> Hämta flera värden</a></li>
+  <li><a href="#wildcard-med-och" id="toc-wildcard-med-och" class="nav-link" data-scroll-target="#wildcard-med-och"><span class="header-section-number">6.4</span> Wildcard med * och ?</a></li>
+  <li><a href="#klartextvärden-i-query" id="toc-klartextvärden-i-query" class="nav-link" data-scroll-target="#klartextvärden-i-query"><span class="header-section-number">6.5</span> Klartextvärden i query</a></li>
+  </ul></li>
+  <li><a href="#deso-och-regso" id="toc-deso-och-regso" class="nav-link" data-scroll-target="#deso-och-regso"><span class="header-section-number">7</span> DeSO och RegSO</a>
+  <ul class="collapse">
+  <li><a href="#hämta-deso-regso-eller-alla-geografiska-indelningar-i-en-kommunlän" id="toc-hämta-deso-regso-eller-alla-geografiska-indelningar-i-en-kommunlän" class="nav-link" data-scroll-target="#hämta-deso-regso-eller-alla-geografiska-indelningar-i-en-kommunlän"><span class="header-section-number">7.1</span> Hämta DeSO, RegSO eller alla geografiska indelningar i en kommun/län</a></li>
+  <li><a href="#dela-upp-kommun-och-område" id="toc-dela-upp-kommun-och-område" class="nav-link" data-scroll-target="#dela-upp-kommun-och-område"><span class="header-section-number">7.2</span> Dela upp kommun och område</a></li>
+  <li><a href="#hantera-flera-versioner" id="toc-hantera-flera-versioner" class="nav-link" data-scroll-target="#hantera-flera-versioner"><span class="header-section-number">7.3</span> Hantera flera versioner</a></li>
+  <li><a href="#när-ska-man-använda-latest-respektive-sum" id="toc-när-ska-man-använda-latest-respektive-sum" class="nav-link" data-scroll-target="#när-ska-man-använda-latest-respektive-sum"><span class="header-section-number">7.4</span> När ska man använda latest respektive sum?</a></li>
+  </ul></li>
+  <li><a href="#hantering-av-kod-och-klartext" id="toc-hantering-av-kod-och-klartext" class="nav-link" data-scroll-target="#hantering-av-kod-och-klartext"><span class="header-section-number">8</span> Hantering av kod och klartext</a></li>
+  <li><a href="#stora-uttag-och-chunkning" id="toc-stora-uttag-och-chunkning" class="nav-link" data-scroll-target="#stora-uttag-och-chunkning"><span class="header-section-number">9</span> Stora uttag och chunkning</a></li>
+  <li><a href="#skapa-query-kod-automatiskt" id="toc-skapa-query-kod-automatiskt" class="nav-link" data-scroll-target="#skapa-query-kod-automatiskt"><span class="header-section-number">10</span> Skapa query-kod automatiskt</a>
+  <ul class="collapse">
+  <li><a href="#pxweb2_query_list_template" id="toc-pxweb2_query_list_template" class="nav-link" data-scroll-target="#pxweb2_query_list_template"><span class="header-section-number">10.1</span> pxweb2_query_list_template()</a></li>
+  <li><a href="#pxweb2_data_script_template" id="toc-pxweb2_data_script_template" class="nav-link" data-scroll-target="#pxweb2_data_script_template"><span class="header-section-number">10.2</span> pxweb2_data_script_template()</a></li>
+  </ul></li>
+  <li><a href="#rekommenderat-arbetsflöde" id="toc-rekommenderat-arbetsflöde" class="nav-link" data-scroll-target="#rekommenderat-arbetsflöde"><span class="header-section-number">11</span> Rekommenderat arbetsflöde</a></li>
+  <li><a href="#hålla-ett-dataset-uppdaterat" id="toc-hålla-ett-dataset-uppdaterat" class="nav-link" data-scroll-target="#hålla-ett-dataset-uppdaterat"><span class="header-section-number">12</span> Hålla ett dataset uppdaterat</a></li>
+  <li><a href="#andra-pxweb-instanser" id="toc-andra-pxweb-instanser" class="nav-link" data-scroll-target="#andra-pxweb-instanser"><span class="header-section-number">13</span> Andra PxWeb-instanser</a></li>
+  <li><a href="#vanliga-problem-och-lösningar" id="toc-vanliga-problem-och-lösningar" class="nav-link" data-scroll-target="#vanliga-problem-och-lösningar"><span class="header-section-number">14</span> Vanliga problem och lösningar</a>
+  <ul class="collapse">
+  <li><a href="#fel-unused-argument" id="toc-fel-unused-argument" class="nav-link" data-scroll-target="#fel-unused-argument"><span class="header-section-number">14.1</span> Fel: unused argument</a></li>
+  <li><a href="#tomma-kommun-kolumner-i-tabeller-utan-desoregso" id="toc-tomma-kommun-kolumner-i-tabeller-utan-desoregso" class="nav-link" data-scroll-target="#tomma-kommun-kolumner-i-tabeller-utan-desoregso"><span class="header-section-number">14.2</span> Tomma kommun-kolumner i tabeller utan DeSO/RegSO</a></li>
+  <li><a href="#kod-och-klartext-ligger-i-samma-kolumn" id="toc-kod-och-klartext-ligger-i-samma-kolumn" class="nav-link" data-scroll-target="#kod-och-klartext-ligger-i-samma-kolumn"><span class="header-section-number">14.3</span> Kod och klartext ligger i samma kolumn</a></li>
+  </ul></li>
+  <li><a href="#funktionsöversikt" id="toc-funktionsöversikt" class="nav-link" data-scroll-target="#funktionsöversikt"><span class="header-section-number">15</span> Funktionsöversikt</a></li>
+  <li><a href="#sammanfattning" id="toc-sammanfattning" class="nav-link" data-scroll-target="#sammanfattning"><span class="header-section-number">16</span> Sammanfattning</a></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+</div>
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Pxweb2r</h1>
+<p class="subtitle lead">Hämta statistik från en PxWeb API v2 med paketet pxweb2r</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Författare</div>
+    <div class="quarto-title-meta-contents">
+             <p>Peter Möller </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Utgiven</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">5 november 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="inledning" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="inledning"><span class="header-section-number">1</span> Inledning</h2>
+<p>Det här dokumentet är en enkel och praktisk introduktion till hur man hämtar data från SCB:s PxWebAPI version 2, med R-paketet <strong>pxweb2r</strong>. Syftet är att snabbt kunna komma igång med datahämtning, förstå de vanligaste parametrarna och känna till de hjälpfunktioner som underlättar arbetet.</p>
+<p>Paketet gör API-anropen mer lättanvända genom att bland annat:</p>
+<ul>
+<li>hämta metadata och variabelvärden (inklusive kodlistor/aggregeringar),</li>
+<li>skapa query-listor,</li>
+<li>tillåta både koder och klartext i urval,</li>
+<li>möjliggöra att flera tabeller hämtas i samma anrop och läggs ihop till ett dataset,</li>
+<li>hantera senaste tidsperiod med <code>"9999"</code>,</li>
+<li>hantera wildcard-uttryck som <code>"2083*"</code>,</li>
+<li>hantera DeSO-/RegSO-versioner,</li>
+<li>kontrollera om en tabell uppdaterats sedan ett visst datum,</li>
+<li>och returnera data i ett analysvänligt format (en <code>tibble</code>).</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Notera</span>Engelska funktions- och parameternamn
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>pxweb2r</strong> har engelska funktions- och parameternamn (<code>pxweb2_get_data()</code>, <code>query</code>, <code>table</code> osv.). Själva innehållet i <code>query</code>-listorna (<code>Region</code>, <code>Kon</code>, <code>ContentsCode</code>, <code>Tid</code> …) är dock alltid på det språk tabellens metadata råkar använda, oftast svenska för SCB:s tabeller.</p>
+</div>
+</div>
+<section id="installation" class="level3" data-number="1.1">
+<h3 data-number="1.1" class="anchored" data-anchor-id="installation"><span class="header-section-number">1.1</span> Installation</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("remotes")</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"FaluPeppe/pxweb2r"</span>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="vem-är-detta-för-och-var-ska-jag-börja-läsa" class="level3" data-number="1.2">
+<h3 data-number="1.2" class="anchored" data-anchor-id="vem-är-detta-för-och-var-ska-jag-börja-läsa"><span class="header-section-number">1.2</span> Vem är detta för — och var ska jag börja läsa?</h3>
+<p>Det här dokumentet är skrivet för användare som vill hämta statistik från PxWebApi v2 till R.</p>
+<section id="du-vill-snabbt-hämta-data" class="level4" data-number="1.2.1">
+<h4 data-number="1.2.1" class="anchored" data-anchor-id="du-vill-snabbt-hämta-data"><span class="header-section-number">1.2.1</span> 🧑‍💻 Du vill snabbt hämta data</h4>
+<p>Läs <a href="#tldr">TL;DR</a> och <a href="#hamta-data-med-pxweb2_get_data">Hämta data med pxweb2_get_data</a>. Det räcker för de flesta vanliga uttag.</p>
+</section>
+<section id="du-vill-förstå-vilka-variabler-och-värden-en-tabell-innehåller" class="level4" data-number="1.2.2">
+<h4 data-number="1.2.2" class="anchored" data-anchor-id="du-vill-förstå-vilka-variabler-och-värden-en-tabell-innehåller"><span class="header-section-number">1.2.2</span> 🔎 Du vill förstå vilka variabler och värden en tabell innehåller</h4>
+<p>Läs <a href="#utforska-tabeller-och-metadata">Utforska tabeller och metadata</a>. Där visas hur du söker tabeller, hämtar metadata och listar variabler, värden och kodlistor.</p>
+</section>
+<section id="du-vill-använda-mer-avancerade-urval" class="level4" data-number="1.2.3">
+<h4 data-number="1.2.3" class="anchored" data-anchor-id="du-vill-använda-mer-avancerade-urval"><span class="header-section-number">1.2.3</span> 🧩 Du vill använda mer avancerade urval</h4>
+<p>Läs <a href="#vanliga-urval-i-query">Vanliga urval i query</a> och <a href="#deso-och-regso">DeSO och RegSO</a>. Där finns exempel på <code>"9999"</code>, wildcard, klartextvärden och hantering av versionerade geografier.</p>
+</section>
+</section>
+</section>
+<section id="tldr" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="tldr"><span class="header-section-number">2</span> TL;DR</h2>
+<p>Snabbstart för dig som vill komma igång direkt:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pxweb2r)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># hämta tabell-id, antingen direkt från SCB:s öppna statistikdatabas eller</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># genom att söka efter tabeller med funktionen pxweb2_search_tables()</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">pxweb2_search_tables</span>(<span class="st">"hushållstyp per region"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># välj en av tabellerna, tex TAB6568 - skapa ett färdigt pxweb2_get_data()-anrop</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># för just den tabellen med pxweb2_data_script_template()</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">pxweb2_data_script_template</span>(<span class="st">"TAB6568"</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># anropet läggs automatiskt i urklippshanteraren och kan klistras in i ett</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># R-skript. Med Ctrl + V direkt efter att du kört pxweb2_data_script_template("TAB6568")</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># får du således anropet nedan</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Antal hushåll per region efter hushållstyp. År 2011-2025</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>dataset_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_data</span>(</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">table =</span> <span class="st">"TAB6568"</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">query =</span> <span class="fu">list</span>(</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region       =</span> <span class="st">"2083*"</span>,</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">Hushallstyp  =</span> <span class="st">"*"</span>,</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">ContentsCode =</span> <span class="st">"*"</span>,</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tid          =</span> <span class="st">"*"</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Nu har du data i dataset_df och kan börja bearbeta datasetet!</span></span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Detta hämtar data från tabellen <code>TAB6568</code>, väljer alla regionkoder som börjar med <code>2083</code>, alla hushållstyper, allt tabellinnehåll och den senaste tidsperioden.</p>
+<p>Vanliga specialvärden:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Uttryck</th>
+<th>Betydelse</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>"*"</code></td>
+<td>Alla värden för variabeln</td>
+</tr>
+<tr class="even">
+<td><code>"9999"</code></td>
+<td>Senaste tidsvärdet för tidsvariabeln</td>
+</tr>
+<tr class="odd">
+<td><code>"2083*"</code></td>
+<td>Alla koder som börjar med <code>2083</code></td>
+</tr>
+<tr class="even">
+<td><code>"202?M12"</code></td>
+<td>Matchar ett tecken med <code>?</code>, till exempel december för 2020-talet</td>
+</tr>
+<tr class="odd">
+<td><code>c("2083A*", "2083B*", "2083C*")</code></td>
+<td>Flera wildcard-uttryck i samma variabel (i detta fall för att ta med alla DeSO i Hedemora kommun)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="utforska-tabeller-och-metadata" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="utforska-tabeller-och-metadata"><span class="header-section-number">3</span> Utforska tabeller och metadata</h2>
+<p>Innan man hämtar data är det ofta bra att förstå tabellens struktur: vilka variabler som finns, vilka värden de kan anta och vilken tidsperiod tabellen täcker.</p>
+<section id="söka-tabeller" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="söka-tabeller"><span class="header-section-number">3.1</span> Söka tabeller</h3>
+<p>Funktionen <code>pxweb2_search_tables()</code> kan användas för att hitta tabeller.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>tabeller_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_search_tables</span>(<span class="st">"hushåll"</span>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Exempel med fler argument:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>tabeller_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_search_tables</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">query               =</span> <span class="st">"befolkning"</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">lang                =</span> <span class="st">"sv"</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">pageSize            =</span> <span class="dv">200</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">includeDiscontinued =</span> <span class="cn">FALSE</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="hämta-metadata" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="hämta-metadata"><span class="header-section-number">3.2</span> Hämta metadata</h3>
+<p>När du vet tabell-id kan du hämta metadata:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>meta <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_metadata</span>(<span class="st">"TAB6568"</span>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Metadataobjektet används av flera andra funktioner och kan skickas vidare för att slippa göra API-anrop flera gånger.</p>
+<p>Vill du bara kontrollera att en tabell faktiskt existerar, utan att göra något med resultatet:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pxweb2_table_exists</span>(<span class="st">"TAB6568"</span>)   <span class="co"># TRUE/FALSE</span></span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="lista-variabler" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="lista-variabler"><span class="header-section-number">3.3</span> Lista variabler</h3>
+<p>Om du vill lista en tabells variabler så kan du använda <code>pxweb2_get_variables()</code>. Den tar antingen ett tabell-id (t.ex. <code>"TAB6568"</code>) eller ett metadataobjekt som argument:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pxweb2_get_variables</span>(meta)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Använder du ett metadataobjekt behöver inte ett nytt API-anrop göras, men det går att använda ett tabell-id direkt (om man inte redan gjort ett metadataobjekt):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pxweb2_get_variables</span>(<span class="st">"TAB6568"</span>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Om du vill spara resultatet i en data frame:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>variabler_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_variables</span>(meta)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Typiska kolumner i resultatet är:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Kolumn</th>
+<th>Beskrivning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>code</code></td>
+<td>Variabelns kod i API:t</td>
+</tr>
+<tr class="even">
+<td><code>label</code></td>
+<td>Variabelns klartextnamn</td>
+</tr>
+<tr class="odd">
+<td><code>size</code></td>
+<td>Antal värden</td>
+</tr>
+<tr class="even">
+<td><code>elimination</code></td>
+<td>Om variabeln kan utelämnas</td>
+</tr>
+<tr class="odd">
+<td><code>role</code></td>
+<td>Till exempel <code>time</code>, <code>geo</code>, <code>contents</code> eller <code>other</code></td>
+</tr>
+<tr class="even">
+<td><code>show</code></td>
+<td>Hur värden visas i metadata/API</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="lista-värden-för-variabler" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="lista-värden-för-variabler"><span class="header-section-number">3.4</span> Lista värden för variabler</h3>
+<p>Om du vill se tabellens värden för samtliga variabler:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>varden <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_values</span>(meta)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Du kan också skicka med en eller flera variabler i parametern <code>variables</code>. Du kan använda både kod och klartext för variabeln (<code>code</code> eller <code>label</code>). Från tabellen vi hämtade metadataobjektet <code>meta</code> ovan kan vi alltså använda <code>region</code> eller <code>Region</code> (blir samma sak då parametern är skiftlägesokänslig, dvs. stora och små bokstäver spelar ingen roll), eller såväl <code>ContentsCode</code> som <code>tabellinnehåll</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>regioner <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_values</span>(meta, <span class="at">variables =</span> <span class="st">"Region"</span>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Det är särskilt användbart för att se vilka koder som finns:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>regioner <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(stringr<span class="sc">::</span><span class="fu">str_starts</span>(code, <span class="st">"2083"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(code, label)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tips</span>Stora variabler och aggregeringar: <code>include_aggregations</code>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Vissa variabler (framför allt <code>Region</code>) har färdiga <strong>kodlistor och aggregeringar</strong> i PxWeb — t.ex. “alla kommuner i ett län” eller “lokala arbetsmarknadsregioner”. <code>pxweb2_get_values()</code> har parametern <code>include_aggregations</code> (<code>"auto"</code> som standard, annars <code>"all"</code>/<code>"none"</code>/<code>"codelists"</code>, eller en namngiven vektor per variabel) för att styra om och hur mycket av det som hämtas. Vill du hämta en enskild kodlista direkt, utan att gå via <code>pxweb2_get_values()</code>, använd <code>pxweb2_get_codelist()</code>; <code>pxweb2_list_codelists(meta)</code> visar vilka kodlist-id:n en tabell faktiskt erbjuder.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="hamta-data-med-pxweb2_get_data" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="hamta-data-med-pxweb2_get_data"><span class="header-section-number">4</span> Hämta data med pxweb2_get_data</h2>
+<p>Den viktigaste funktionen är <code>pxweb2_get_data()</code>. Den hämtar data från en tabell och returnerar en <code>tibble</code>.</p>
+<section id="grundexempel" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="grundexempel"><span class="header-section-number">4.1</span> Grundexempel</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>dataset_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_data</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">table =</span> <span class="st">"TAB6568"</span>,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">query =</span> <span class="fu">list</span>(</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region       =</span> <span class="st">"2083"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Hushallstyp  =</span> <span class="st">"*"</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">ContentsCode =</span> <span class="st">"*"</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tid          =</span> <span class="st">"*"</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="använd-metadataobjekt-istället-för-tabell-id" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="använd-metadataobjekt-istället-för-tabell-id"><span class="header-section-number">4.2</span> Använd metadataobjekt istället för tabell-id</h3>
+<p>Om metadata redan är hämtad kan den skickas direkt:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>meta <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_metadata</span>(<span class="st">"TAB6568"</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>dataset_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_data</span>(</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">table =</span> meta,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">query =</span> <span class="fu">list</span>(</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region =</span> <span class="st">"2083"</span>,</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tid    =</span> <span class="st">"9999"</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Det kan vara praktiskt när man ska göra flera uttag från samma tabell.</p>
+</section>
+</section>
+<section id="hämta-data-från-en-eller-flera-scb-tabeller" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="hämta-data-från-en-eller-flera-scb-tabeller"><span class="header-section-number">5</span> Hämta data från en eller flera SCB-tabeller</h2>
+<section id="hämta-data-från-en-tabell" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="hämta-data-från-en-tabell"><span class="header-section-number">5.1</span> Hämta data från en tabell</h3>
+<p>Det enklaste fallet är att hämta data från en enda tabell. Tabellen anges med argumentet <code>table</code>, och urvalet anges i <code>query</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>dataset_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_data</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">table =</span> <span class="st">"TAB6766"</span>,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">query =</span> <span class="fu">list</span>(</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region       =</span> <span class="st">"2021"</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Kon          =</span> <span class="st">"*"</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">ContentsCode =</span> <span class="st">"*"</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tid          =</span> <span class="st">"*"</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>I <code>query</code> anges vilka värden som ska hämtas för respektive variabel. Tecknet <code>"*"</code> betyder att alla värden för variabeln hämtas (API:ts eget wildcard, se <a href="#vanliga-urval-i-query">Vanliga urval i query</a>).</p>
+</section>
+<section id="hamta-den-senaste-tidsperioden" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="hamta-den-senaste-tidsperioden"><span class="header-section-number">5.2</span> Hämta den senaste tidsperioden</h3>
+<p>Om <code>"9999"</code> används för tidsvariabeln hämtas den senaste tillgängliga tidsperioden i tabellen. Önskar du ett annat alias än <code>"9999"</code>, eller att funktionen ska strunta i senaste-period-hanteringen helt, styr <code>latest_period_code</code> (<code>NULL</code> stänger av den).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>dataset_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_data</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">table =</span> <span class="st">"TAB6766"</span>,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">query =</span> <span class="fu">list</span>(</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region       =</span> <span class="st">"2021"</span>,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Kon          =</span> <span class="st">"*"</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">ContentsCode =</span> <span class="st">"*"</span>,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tid          =</span> <span class="st">"9999"</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Detta är praktiskt när man vill slippa ändra årtal manuellt när SCB uppdaterar en tabell.</p>
+</section>
+<section id="hämta-och-lägga-ihop-flera-tabeller" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="hämta-och-lägga-ihop-flera-tabeller"><span class="header-section-number">5.3</span> Hämta och lägga ihop flera tabeller</h3>
+<p>I vissa fall är samma statistik uppdelad på flera SCB-tabeller, till exempel eftersom äldre och nyare årgångar ligger i olika tabeller. Då kan flera tabell-id:n skickas in som en vektor i <code>table</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>dataset_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_data</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">table =</span> <span class="fu">c</span>(<span class="st">"TAB3266"</span>, <span class="st">"TAB3267"</span>, <span class="st">"TAB5839"</span>, <span class="st">"TAB1828"</span>),</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">query =</span> <span class="fu">list</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region       =</span> <span class="st">"2021"</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Kon          =</span> <span class="st">"*"</span>,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">ContentsCode =</span> <span class="st">"*"</span>,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tid          =</span> <span class="st">"*"</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Funktionen hämtar då varje tabell separat och lägger ihop resultaten radvis. Om tabellerna inte har exakt samma kolumnstruktur ges en varning. Saknade kolumner fylls då med <code>NA</code>.</p>
+</section>
+<section id="harmonisering-av-variabelnamn" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="harmonisering-av-variabelnamn"><span class="header-section-number">5.4</span> Harmonisering av variabelnamn</h3>
+<p>Ibland innehåller tabellerna samma typ av information, men SCB har använt olika variabelnamn i olika tabeller. Exempelet nedan är flera tabeller som innehåller samma information, där alla tabeller utom en använder variabelnamnet <code>Region</code>, medan den använder <code>Kommun</code>.</p>
+<p>Då kan argumentet <code>harmonise_variable_names</code> användas.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>dataset_df2 <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_data</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">table =</span> <span class="fu">c</span>(<span class="st">"TAB3266"</span>, <span class="st">"TAB3267"</span>, <span class="st">"TAB5839"</span>, <span class="st">"TAB1828"</span>),</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">query =</span> <span class="fu">list</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region       =</span> <span class="st">"2021"</span>,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Kon          =</span> <span class="st">"*"</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">ContentsCode =</span> <span class="st">"*"</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tid          =</span> <span class="st">"*"</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">harmonise_variable_names =</span> <span class="fu">c</span>(<span class="at">Region =</span> <span class="st">"Kommun"</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Det betyder att variabeln <code>Kommun</code> behandlas som <code>Region</code>.</p>
+<p>Harmoniseringen sker i två steg:</p>
+<ol type="1">
+<li>Vid hämtningen översätts queryn till rätt variabelnamn för respektive tabell.</li>
+<li>Efter hämtningen döps resultatkolumnerna om så att de får samma namn innan tabellerna läggs ihop.</li>
+</ol>
+<p>Exempelvis innebär:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>harmonise_variable_names <span class="ot">=</span> <span class="fu">c</span>(<span class="at">Region =</span> <span class="st">"Kommun"</span>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+<p>att:</p>
+<ul>
+<li>användaren kan skriva <code>Region</code> i <code>query</code></li>
+<li>tabeller där variabeln heter <code>Kommun</code> hanteras ändå korrekt</li>
+<li>kolumnen <code>kommun</code> i resultatet döps om till <code>region</code></li>
+<li>kolumnen <code>kommun_kod</code> döps om till <code>region_kod</code></li>
+</ul>
+<p>Det gör att de sammanslagna tabellerna får en mer enhetlig struktur.</p>
+</section>
+</section>
+<section id="vanliga-urval-i-query" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="vanliga-urval-i-query"><span class="header-section-number">6</span> Vanliga urval i query</h2>
+<p>Argumentet <code>query</code> är en namngiven lista. Namnen motsvarar variabler i tabellen, oftast API-koder som <code>Region</code>, <code>Tid</code> och <code>ContentsCode</code>.</p>
+<section id="hämta-alla-värden" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="hämta-alla-värden"><span class="header-section-number">6.1</span> Hämta alla värden</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>query <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Region =</span> <span class="st">"*"</span>,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Tid    =</span> <span class="st">"*"</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="hämta-senaste-tidsperiod-med-9999" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="hämta-senaste-tidsperiod-med-9999"><span class="header-section-number">6.2</span> Hämta senaste tidsperiod med 9999</h3>
+<p><code>"9999"</code> används som ett användarvänligt alias för senaste tidsvärdet (styrs av <code>latest_period_code</code>, se <a href="#hamta-den-senaste-tidsperioden">Hämta den senaste tidsperioden</a>).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>query <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Region =</span> <span class="st">"2083"</span>,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Tid    =</span> <span class="st">"9999"</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Om tabellen har år väljs senaste år. Om tabellen har månader väljs senaste månad. Funktionen använder tidsvariabeln i metadata, inte variabelnamnet i sig.</p>
+</section>
+<section id="hämta-flera-värden" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="hämta-flera-värden"><span class="header-section-number">6.3</span> Hämta flera värden</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>query <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Region =</span> <span class="fu">c</span>(<span class="st">"2081"</span>, <span class="st">"2082"</span>, <span class="st">"2083"</span>),</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Tid    =</span> <span class="fu">c</span>(<span class="st">"2023"</span>, <span class="st">"2024"</span>, <span class="st">"2025"</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="wildcard-med-och" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="wildcard-med-och"><span class="header-section-number">6.4</span> Wildcard med * och ?</h3>
+<p>Funktionen kan hantera wildcard-uttryck lokalt mot metadata innan API-anropet skickas (styrs av <code>allow_api_wildcards</code>). Det gör att chunk-logiken fortfarande vet hur många celler uttaget omfattar.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>query <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Region =</span> <span class="st">"2083*"</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Flera wildcard-uttryck kan kombineras:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>query <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Region =</span> <span class="fu">c</span>(<span class="st">"2083A*"</span>, <span class="st">"2083B*"</span>, <span class="st">"2083C*"</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>?</code> matchar ett enskilt tecken:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>query <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Tid =</span> <span class="st">"202?M12"</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="klartextvärden-i-query" class="level3" data-number="6.5">
+<h3 data-number="6.5" class="anchored" data-anchor-id="klartextvärden-i-query"><span class="header-section-number">6.5</span> Klartextvärden i query</h3>
+<p>Om <code>allow_label_values = TRUE</code> (standard) kan man i många fall ange klartext istället för kod.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>dataset_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_data</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">table =</span> <span class="st">"TAB6568"</span>,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">query =</span> <span class="fu">list</span>(</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region =</span> <span class="st">"Hedemora"</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tid    =</span> <span class="st">"9999"</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">allow_label_values =</span> <span class="cn">TRUE</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Det går också att blanda kod och klartext om metadata tillåter matchningen.</p>
+</section>
+</section>
+<section id="deso-och-regso" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="deso-och-regso"><span class="header-section-number">7</span> DeSO och RegSO</h2>
+<p>SCB-tabeller kan innehålla flera versioner av DeSO och RegSO, till exempel äldre och nyare indelningar. Paketet har därför stöd för att normalisera och hantera dessa versioner.</p>
+<section id="hämta-deso-regso-eller-alla-geografiska-indelningar-i-en-kommunlän" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="hämta-deso-regso-eller-alla-geografiska-indelningar-i-en-kommunlän"><span class="header-section-number">7.1</span> Hämta DeSO, RegSO eller alla geografiska indelningar i en kommun/län</h3>
+<p>Om du vill hämta alla DeSO eller RegSO i en kommun eller ett län kan du använda wildcard-uttryck som t.ex. <code>2083*</code> för att få med alla koder som finns i tabellen för Hedemora kommun, alternativt <code>20*</code> för att hämta alla koder i Dalarnas län. För att hämta alla RegSO, DeSO eller samtliga geografiska indelningar i en kommun:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>Region <span class="ot">=</span> <span class="st">"2083R*"</span>                                     <span class="co"># hämta alla RegSO i Hedemora kommun</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>Region <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"2083A*"</span>, <span class="st">"2083B*"</span>, <span class="st">"2083C*"</span>)              <span class="co"># hämta alla DeSO i Hedemora kommun</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>Region <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"2083A*"</span>, <span class="st">"2083B*"</span>, <span class="st">"2083C*"</span>, <span class="st">"2083R*"</span>)    <span class="co"># hämta alla DeSO och RegSO i Hedemora kommun</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>Region <span class="ot">=</span> <span class="st">"2083*"</span>                                      <span class="co"># hämta alla områden som finns i tabellen i Hedemora kommun</span></span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Motsvarande för ett län blir följande:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>Region <span class="ot">=</span> <span class="st">"20??R*"</span>                                     <span class="co"># hämta alla RegSO i Dalarnas län</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>Region <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"20??A*"</span>, <span class="st">"20??B*"</span>, <span class="st">"20??C*"</span>)              <span class="co"># hämta alla DeSO i Dalarnas län</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>Region <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"20??A*"</span>, <span class="st">"20??B*"</span>, <span class="st">"20??C*"</span>, <span class="st">"20??R*"</span>)    <span class="co"># hämta alla DeSO och RegSO i Dalarnas län</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>Region <span class="ot">=</span> <span class="st">"20*"</span>                                        <span class="co"># hämta alla områden som finns i tabellen i Dalarnas län</span></span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="dela-upp-kommun-och-område" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="dela-upp-kommun-och-område"><span class="header-section-number">7.2</span> Dela upp kommun och område</h3>
+<p>Parametern <code>split_deso_regso_by_municipality = TRUE</code> (standard) gör att funktionen försöker skapa kommunuppgifter när regionen är DeSO eller RegSO.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>dataset_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_data</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">table =</span> <span class="st">"TAB6568"</span>,</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">query =</span> <span class="fu">list</span>(</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region =</span> <span class="fu">c</span>(<span class="st">"2083A*"</span>, <span class="st">"2083B*"</span>, <span class="st">"2083C*"</span>, <span class="st">"2083R*"</span>),</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tid    =</span> <span class="st">"9999"</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">split_deso_regso_by_municipality =</span> <span class="cn">TRUE</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Resultatet kan då få extra kolumner:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Kolumn</th>
+<th>Beskrivning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>kommun_kod</code></td>
+<td>Fyra första siffrorna i regionkoden</td>
+</tr>
+<tr class="even">
+<td><code>kommun</code></td>
+<td>Kommunnamn, när det kan utläsas från labeln</td>
+</tr>
+<tr class="odd">
+<td><code>region_kod</code></td>
+<td>DeSO-/RegSO-kod utan versionssuffix</td>
+</tr>
+<tr class="even">
+<td><code>region</code></td>
+<td>RegSO-namn eller DeSO-kod om DeSO-namn saknas</td>
+</tr>
+</tbody>
+</table>
+<p>Om tabellen inte innehåller DeSO eller RegSO ska dessa extra kolumner inte skapas.</p>
+</section>
+<section id="hantera-flera-versioner" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="hantera-flera-versioner"><span class="header-section-number">7.3</span> Hantera flera versioner</h3>
+<p>Parametern <code>deso_regso_versions</code> styr hur versionerade DeSO-/RegSO-koder hanteras.</p>
+<p>Tillåtna värden:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Värde</th>
+<th>Betydelse</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>"latest"</code></td>
+<td>Behåll senaste version med faktiskt värde. Om senaste version har <code>0</code> men äldre version har värde över <code>0</code>, behåll den äldre med värde.</td>
+</tr>
+<tr class="even">
+<td><code>"sum"</code></td>
+<td>Ta bort versionssuffix och summera rader som blir dubletter.</td>
+</tr>
+<tr class="odd">
+<td><code>NULL</code></td>
+<td>Gör ingen versionshantering.</td>
+</tr>
+</tbody>
+</table>
+<p>Rekommenderad standard (och default-värde):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>deso_regso_versions <span class="ot">=</span> <span class="st">"latest"</span></span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Exempel:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>dataset_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_data</span>(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">table =</span> <span class="st">"TAB6568"</span>,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">query =</span> <span class="fu">list</span>(</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region       =</span> <span class="fu">c</span>(<span class="st">"2083A*"</span>, <span class="st">"2083B*"</span>, <span class="st">"2083C*"</span>, <span class="st">"2083R*"</span>),</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Hushallstyp  =</span> <span class="st">"*"</span>,</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">ContentsCode =</span> <span class="st">"*"</span>,</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tid          =</span> <span class="st">"*"</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">deso_regso_versions =</span> <span class="st">"latest"</span>,</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">split_deso_regso_by_municipality =</span> <span class="cn">TRUE</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="när-ska-man-använda-latest-respektive-sum" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="när-ska-man-använda-latest-respektive-sum"><span class="header-section-number">7.4</span> När ska man använda latest respektive sum?</h3>
+<p>Använd <code>"latest"</code> när DeSO-/RegSO-versioner ska ses som alternativa versioner av samma geografiska område. Det är normalt det säkraste valet.</p>
+<p>Använd <code>"sum"</code> när versionerade rader representerar nollrader eller när du uttryckligen vill lägga ihop rader som blir identiska efter att versionssuffixet tagits bort. Denna metod används mycket sällan — normalt är default-värdet <code>"latest"</code> det rimligaste.</p>
+<p>Använd <code>NULL</code> om du vill behålla alla versioner separat. I många tabeller är inte detta meningsfullt, då det bara är en version som har värden varje år.</p>
+</section>
+</section>
+<section id="hantering-av-kod-och-klartext" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="hantering-av-kod-och-klartext"><span class="header-section-number">8</span> Hantering av kod och klartext</h2>
+<p>Vissa tabeller har labels där kod och klartext ligger tillsammans, till exempel:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="st">"2082 Säter"</span></span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Parametern <code>strip_code_in_label = TRUE</code> (standard) gör att funktionen försöker rensa bort kodprefixet när motsvarande kod finns i kodkolumnen.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>dataset_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_data</span>(</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">table =</span> <span class="st">"TAB6568"</span>,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">query =</span> <span class="fu">list</span>(</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region =</span> <span class="st">"2082"</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tid    =</span> <span class="st">"9999"</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">strip_code_in_label =</span> <span class="cn">TRUE</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Principen är att bara ta bort koden när klartexten börjar med exakt samma kod. Om labeln bara består av kod, till exempel en DeSO-kod utan namn, behålls koden även som regionnamn.</p>
+</section>
+<section id="stora-uttag-och-chunkning" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="stora-uttag-och-chunkning"><span class="header-section-number">9</span> Stora uttag och chunkning</h2>
+<p>Funktionen delar upp stora uttag i mindre delar när antalet celler blir stort (PxWeb API v2 har ett tak på 150 000 celler per anrop). Detta görs automatiskt, för att undvika att uttag överskrider API-gränser.</p>
+<p>Wildcard-uttryck som <code>"2083*"</code> expanderas lokalt mot metadata före chunkning. Det gör att funktionen kan räkna celler utifrån faktiska koder, samtidigt som användaren kan skriva queryn på ett enkelt sätt.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>dataset_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_data</span>(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">table =</span> <span class="st">"TAB6568"</span>,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">query =</span> <span class="fu">list</span>(</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region       =</span> <span class="st">"2083*"</span>,</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Hushallstyp  =</span> <span class="st">"*"</span>,</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">ContentsCode =</span> <span class="st">"*"</span>,</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tid          =</span> <span class="st">"*"</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Notera</span>Ovanliga/felaktiga värden i query: <code>on_all_values_invalid</code>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Om <strong>samtliga</strong> värden du anger för en variabel saknas i tabellen (t.ex. en felstavad region) styr <code>on_all_values_invalid</code> vad som händer: <code>"stop"</code> (standard) avbryter med ett fel, <code>"*"</code> hämtar alla värden för variabeln istället, och <code>"null"</code> gör att hela anropet returnerar <code>NULL</code>. Det sista är praktiskt när du hämtar från flera tabeller där olika år/regioner bara finns i vissa av dem.</p>
+</div>
+</div>
+</section>
+<section id="skapa-query-kod-automatiskt" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="skapa-query-kod-automatiskt"><span class="header-section-number">10</span> Skapa query-kod automatiskt</h2>
+<section id="pxweb2_query_list_template" class="level3" data-number="10.1">
+<h3 data-number="10.1" class="anchored" data-anchor-id="pxweb2_query_list_template"><span class="header-section-number">10.1</span> pxweb2_query_list_template()</h3>
+<p>Funktionen <code>pxweb2_query_list_template()</code> skapar text för en query-lista utifrån tabellens variabler.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pxweb2_query_list_template</span>(<span class="st">"TAB6568"</span>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Exempel med egna standardvärden:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pxweb2_query_list_template</span>(</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">table_id  =</span> <span class="st">"TAB6568"</span>,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">overrides =</span> <span class="fu">list</span>(</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region =</span> <span class="st">"2083*"</span>,</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tid    =</span> <span class="st">"9999"</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="pxweb2_data_script_template" class="level3" data-number="10.2">
+<h3 data-number="10.2" class="anchored" data-anchor-id="pxweb2_data_script_template"><span class="header-section-number">10.2</span> pxweb2_data_script_template()</h3>
+<p>Funktionen <code>pxweb2_data_script_template()</code> skapar ett färdigt kodutkast för att hämta data — skriven till konsolen och (om möjligt) kopierad till urklipp.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pxweb2_data_script_template</span>(<span class="st">"TAB6568"</span>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Det kan vara ett snabbt sätt att starta ett nytt skript för en tabell.</p>
+</section>
+</section>
+<section id="rekommenderat-arbetsflöde" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="rekommenderat-arbetsflöde"><span class="header-section-number">11</span> Rekommenderat arbetsflöde</h2>
+<p>Ett bra standardflöde är:</p>
+<ol type="1">
+<li>Sök fram tabellen med <code>pxweb2_search_tables()</code> eller via SCB:s webbgränssnitt.</li>
+<li>Skapa skriptet för att hämta data med <code>pxweb2_data_script_template()</code>.</li>
+<li>Klistra in med Ctrl + V och få ett skript med ett giltigt <code>pxweb2_get_data()</code>-anrop för den aktuella tabellen.</li>
+<li>Kontrollera resultatet: kolumnnamn, regionnivåer, tidsperioder och eventuella DeSO-/RegSO-versioner.</li>
+</ol>
+<p>Exempel:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pxweb2_search_tables</span>(<span class="st">"helårsekvivalenter"</span>)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Välj en tabell och skapa skriptet för den tabellen</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="fu">pxweb2_data_script_template</span>(<span class="st">"TAB1386"</span>)</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Kör Ctrl + V för att få skriptet nedan</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>dataset_df <span class="ot">&lt;-</span> <span class="fu">pxweb2_get_data</span>(</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">table =</span> <span class="st">"TAB1386"</span>,</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">query =</span> <span class="fu">list</span>(</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region       =</span> <span class="st">"*"</span>,</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">Kon          =</span> <span class="st">"*"</span>,</span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">Aldersgrupp  =</span> <span class="st">"*"</span>,</span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">ContentsCode =</span> <span class="st">"*"</span>,</span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tid          =</span> <span class="st">"*"</span></span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="hålla-ett-dataset-uppdaterat" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="hålla-ett-dataset-uppdaterat"><span class="header-section-number">12</span> Hålla ett dataset uppdaterat</h2>
+<p>Körs ett skript schemalagt (t.ex. nattligt) är det ofta onödigt att hämta om samma data varje gång. <code>pxweb2_table_updated()</code> och <code>pxweb2_table_needs_update()</code> låter dig kontrollera om SCB faktiskt lagt upp en nyare version sedan sist, innan du gör själva datahämtningen:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Senaste gång tabellen uppdaterades hos SCB</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">pxweb2_table_updated</span>(<span class="st">"TAB6568"</span>)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="co"># → "2026-06-02T00:59:31Z"</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Har tabellen uppdaterats sedan ett visst tillfälle?</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="fu">pxweb2_table_needs_update</span>(<span class="st">"TAB6568"</span>, <span class="at">reference_datetime =</span> <span class="st">"2025-05-28T06:00:00Z"</span>)</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="co"># → TRUE/FALSE (NA om tabellens uppdateringstid saknas)</span></span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Praktiskt i ett schemalagt skript: spara tidpunkten för senaste lyckade hämtning, och skippa <code>pxweb2_get_data()</code>-anropet (och allt som bygger på det) om <code>pxweb2_table_needs_update()</code> ger <code>FALSE</code>.</p>
+</section>
+<section id="andra-pxweb-instanser" class="level2" data-number="13">
+<h2 data-number="13" class="anchored" data-anchor-id="andra-pxweb-instanser"><span class="header-section-number">13</span> Andra PxWeb-instanser</h2>
+<p>Alla funktioner tar ett <code>base_url</code>-argument, med SCB:s statistikdatabas som standard. Tabell-id:n valideras inte mot SCB:s namngivning — finns inte ett id på den angivna <code>base_url</code>, kastar <code>pxweb2_get_metadata()</code> ett tydligt fel (HTTP 404) istället för att gissa.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pxweb2_get_data</span>(</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">table    =</span> <span class="st">"NågotTabellId"</span>,</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">query    =</span> <span class="fu">list</span>(...),</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">base_url =</span> <span class="st">"https://en-annan-pxweb-instans.se/api/v2/tables/"</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tips</span>Relaterat paket: pxweb
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><a href="https://github.com/rOpenGov/pxweb"><code>pxweb</code></a> (rOpenGov) är det etablerade, generella R-biblioteket för PxWeb-API:er och stödjer både v1 och v2. <code>pxweb2r</code> är ett smalare, mer opinionerat paket byggt specifikt mot <strong>v2</strong>-API:et (t.ex. att slå ihop flera tabeller, DeSO-/RegSO-hantering och arbetsflödeshjälparna ovan) — värt att prova <code>pxweb</code> också om du behöver bredare PxWeb-instansstöd eller v1.</p>
+</div>
+</div>
+</section>
+<section id="vanliga-problem-och-lösningar" class="level2" data-number="14">
+<h2 data-number="14" class="anchored" data-anchor-id="vanliga-problem-och-lösningar"><span class="header-section-number">14</span> Vanliga problem och lösningar</h2>
+<section id="fel-unused-argument" class="level3" data-number="14.1">
+<h3 data-number="14.1" class="anchored" data-anchor-id="fel-unused-argument"><span class="header-section-number">14.1</span> Fel: unused argument</h3>
+<p>Om du får ett fel som:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>unused <span class="fu">argument</span> (...)</span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>kontrollera att argumentnamnet i funktionsanropet matchar funktionsdefinitionen — pxweb2r:s parametrar heter på engelska (t.ex. <code>harmonise_variable_names</code>).</p>
+</section>
+<section id="tomma-kommun-kolumner-i-tabeller-utan-desoregso" class="level3" data-number="14.2">
+<h3 data-number="14.2" class="anchored" data-anchor-id="tomma-kommun-kolumner-i-tabeller-utan-desoregso"><span class="header-section-number">14.2</span> Tomma kommun-kolumner i tabeller utan DeSO/RegSO</h3>
+<p>Splitfunktionen ska bara lägga till <code>kommun_kod</code> och <code>kommun</code> när tabellen faktiskt innehåller DeSO eller RegSO.</p>
+</section>
+<section id="kod-och-klartext-ligger-i-samma-kolumn" class="level3" data-number="14.3">
+<h3 data-number="14.3" class="anchored" data-anchor-id="kod-och-klartext-ligger-i-samma-kolumn"><span class="header-section-number">14.3</span> Kod och klartext ligger i samma kolumn</h3>
+<p>Vissa tabeller kan ha labels som innehåller både kod och namn. Använd:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>strip_code_in_label <span class="ot">=</span> <span class="cn">TRUE</span></span></code></pre></div><button title="Kopiera till urklipp" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Då försöker funktionen rensa bort kodprefixet på ett kontrollerat sätt.</p>
+</section>
+</section>
+<section id="funktionsöversikt" class="level2" data-number="15">
+<h2 data-number="15" class="anchored" data-anchor-id="funktionsöversikt"><span class="header-section-number">15</span> Funktionsöversikt</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Funktion</th>
+<th>Syfte</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>pxweb2_get_data()</code></td>
+<td>Huvudfunktion: hämtar data från en eller flera tabeller.</td>
+</tr>
+<tr class="even">
+<td><code>pxweb2_get_metadata()</code></td>
+<td>Hämtar en tabells metadata.</td>
+</tr>
+<tr class="odd">
+<td><code>pxweb2_table_exists()</code></td>
+<td>Kontrollerar om ett tabell-id existerar på <code>base_url</code>.</td>
+</tr>
+<tr class="even">
+<td><code>pxweb2_get_variables()</code></td>
+<td>Returnerar tabellens variabler i tabellform.</td>
+</tr>
+<tr class="odd">
+<td><code>pxweb2_get_values()</code></td>
+<td>Returnerar giltiga värden för tabellens variabler (inkl. ev. kodlistor/aggregeringar).</td>
+</tr>
+<tr class="even">
+<td><code>pxweb2_get_codelist()</code></td>
+<td>Hämtar en enskild kodlista (value set/aggregering) via dess id.</td>
+</tr>
+<tr class="odd">
+<td><code>pxweb2_list_codelists()</code></td>
+<td>Listar vilka kodlist-id:n en tabell erbjuder.</td>
+</tr>
+<tr class="even">
+<td><code>pxweb2_table_updated()</code></td>
+<td>Tidpunkt för tabellens senaste uppdatering hos SCB.</td>
+</tr>
+<tr class="odd">
+<td><code>pxweb2_table_needs_update()</code></td>
+<td>Jämför tabellens uppdateringstid mot en egen tidpunkt.</td>
+</tr>
+<tr class="even">
+<td><code>pxweb2_search_tables()</code></td>
+<td>Söker tabeller.</td>
+</tr>
+<tr class="odd">
+<td><code>pxweb2_query_list_template()</code></td>
+<td>Skapar text för en query-lista.</td>
+</tr>
+<tr class="even">
+<td><code>pxweb2_data_script_template()</code></td>
+<td>Skapar ett färdigt kodutkast för datahämtning.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sammanfattning" class="level2" data-number="16">
+<h2 data-number="16" class="anchored" data-anchor-id="sammanfattning"><span class="header-section-number">16</span> Sammanfattning</h2>
+<ul>
+<li>Använd <code>pxweb2_get_data()</code> för själva datahämtningen.</li>
+<li>Använd <code>pxweb2_search_tables()</code> för att hitta tabeller i databasen.</li>
+<li>Använd <code>pxweb2_data_script_template()</code> för att snabbt skapa ett skriptutkast för datahämtning.</li>
+<li>Använd <code>pxweb2_get_metadata()</code>, <code>pxweb2_get_variables()</code> och <code>pxweb2_get_values()</code> för att förstå tabellens struktur, och <code>pxweb2_get_codelist()</code>/<code>pxweb2_list_codelists()</code> för kodlistor/aggregeringar.</li>
+<li>Använd <code>pxweb2_table_updated()</code>/<code>pxweb2_table_needs_update()</code> för att undvika onödiga omhämtningar i schemalagda skript.</li>
+<li>Använd <code>"9999"</code> för senaste tidsperiod.</li>
+<li>Använd <code>*</code> och <code>?</code> för wildcard-urval.</li>
+<li>Använd <code>deso_regso_versions = "latest"</code> som standard för DeSO/RegSO.</li>
+<li>Använd <code>split_deso_regso_by_municipality = TRUE</code> för att skapa <code>kommun_kod</code> och <code>kommun</code> när tabellen innehåller DeSO/RegSO.</li>
+</ul>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Kopierat!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Kopierat!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Rullbar kod","output":"Rullbara utdata"};
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
