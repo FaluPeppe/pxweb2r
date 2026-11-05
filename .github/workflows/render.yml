@@ -1,0 +1,30 @@
+name: Render pxweb2r.qmd for GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - pxweb2r.qmd
+      - .github/workflows/render.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Render pxweb2r.qmd to docs/index.html
+        run: |
+          mkdir -p docs
+          quarto render pxweb2r.qmd --to html --output index.html --output-dir docs
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Render pxweb2r.qmd for GitHub Pages [skip ci]"
+          file_pattern: docs/

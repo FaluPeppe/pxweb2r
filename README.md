@@ -7,6 +7,8 @@
 [Statistics Sweden's statistical database](https://www.statistikdatabasen.scb.se/) -
 and returns tidy `tibble` tables.
 
+📖 **[Full documentation](https://falupeppe.github.io/pxweb2r/)** - a longer, example-driven guide (in Swedish) covering metadata, query building, wildcards, multi-table fetches, DeSO/RegSO handling and more.
+
 ## Installation
 
 ```r
@@ -54,12 +56,6 @@ pxweb2_search_tables("befolkning")
 #    and adjust
 pxweb2_data_script_template("TAB6104")
 ```
-
-## Full documentation
-
-A longer, example-driven guide (in Swedish) covering metadata, query building,
-wildcards, multi-table fetches, DeSO/RegSO handling and more is available in
-[`pxweb2r.qmd`](pxweb2r.qmd) in this repo.
 
 ## Other PxWeb instances
 
