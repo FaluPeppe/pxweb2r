@@ -7,7 +7,7 @@
 [Statistics Sweden's statistical database](https://www.statistikdatabasen.scb.se/) -
 and returns tidy `tibble` tables.
 
-📖 **[Full documentation](https://falupeppe.github.io/pxweb2r/)** - a longer, example-driven guide (in Swedish) covering metadata, query building, wildcards, multi-table fetches, DeSO/RegSO handling and more.
+📖 **<a href="https://falupeppe.github.io/pxweb2r/" target="_blank" rel="noopener noreferrer">Full documentation</a>** - a longer, example-driven guide (in Swedish) covering metadata, query building, wildcards, multi-table fetches, DeSO/RegSO handling and more.
 
 ## Installation
 
