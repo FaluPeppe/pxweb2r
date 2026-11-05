@@ -55,6 +55,12 @@ pxweb2_search_tables("befolkning")
 pxweb2_data_script_template("TAB6104")
 ```
 
+## Full documentation
+
+A longer, example-driven guide (in Swedish) covering metadata, query building,
+wildcards, multi-table fetches, DeSO/RegSO handling and more is available in
+[`pxweb2r.qmd`](pxweb2r.qmd) in this repo.
+
 ## Other PxWeb instances
 
 Every function takes a `base_url` argument. Table ids are not validated against
